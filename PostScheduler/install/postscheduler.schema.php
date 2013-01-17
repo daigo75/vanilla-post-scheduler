@@ -17,7 +17,7 @@ class PostSchedulerSchema extends PluginSchema {
 
 		Gdn::Structure()
 			->Column('Scheduled', 'smallint', 0)
-			->Column('ScheduleTime', 'datetime')
+			->Column('ScheduleTime', 'datetime', true)
 			->Set();
 	}
 

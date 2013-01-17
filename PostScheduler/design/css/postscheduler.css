@@ -18,6 +18,12 @@ div.PostSchedulerDescription {
 	margin-left: 1em;
 }
 
+.PostScheduler .ErrorMessage {
+	background-color: #ffff99;
+	padding: 0.5em;
+	color: red;
+}
+
 /* Style for scheduled discussions (visible and not yet visible) */
 .Scheduled {
 }

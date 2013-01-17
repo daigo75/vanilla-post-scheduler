@@ -6,7 +6,7 @@
 // Define the plugin:
 $PluginInfo['PostScheduler'] = array(
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.01.16',
+	'Version' => '13.01.17',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
 	'RequiredPlugins' => FALSE,
@@ -21,8 +21,11 @@ $PluginInfo['PostScheduler'] = array(
 																 ),
 );
 
-class PostSchedulerPlugin extends Gdn_Plugin {
+// Load validation functions
+require(PATH_PLUGINS . '/PostScheduler/lib/postscheduler.validation.php');
 
+class PostSchedulerPlugin extends Gdn_Plugin {
+	// Values for the Schedule field
 	const SCHEDULED_YES = 1;
 	const SCHEDULED_NO = 0;
 
@@ -30,7 +33,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * Plugin constructor
 	 */
 	public function __construct() {
-
+		// dummy
 	}
 
 	/**
@@ -66,26 +69,26 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$Sender->Permission('Vanilla.Settings.Manage');
 		$Sender->SetData('PluginDescription',$this->GetPluginKey('Description'));
 
-		$Validation = new Gdn_Validation();
-		$ConfigurationModel = new Gdn_ConfigurationModel($Validation);
-		$ConfigurationModel->SetField(array(
-		));
+		//$Validation = new Gdn_Validation();
+		//$ConfigurationModel = new Gdn_ConfigurationModel($Validation);
+		//$ConfigurationModel->SetField(array(
+		//));
 
 		// Set the model on the form.
-		$Sender->Form->SetModel($ConfigurationModel);
+		//$Sender->Form->SetModel($ConfigurationModel);
 
-		// If seeing the form for the first time...
-		if ($Sender->Form->AuthenticatedPostBack() === FALSE) {
-			// Apply the config settings to the form.
-			$Sender->Form->SetData($ConfigurationModel->Data);
-		} else {
-			$ConfigurationModel->Validation->ApplyRule('Plugin.PostScheduler.TrimSize', 'Integer');
-
-			$Saved = $Sender->Form->Save();
-			if ($Saved) {
-				$Sender->StatusMessage = T("Your changes have been saved.");
-			}
-		}
+		//// If seeing the form for the first time...
+		//if ($Sender->Form->AuthenticatedPostBack() === FALSE) {
+		//	// Apply the config settings to the form.
+		//	//$Sender->Form->SetData($ConfigurationModel->Data);
+		//} else {
+		//	$ConfigurationModel->Validation->ApplyRule('Plugin.PostScheduler.TrimSize', 'Integer');
+		//
+		//	$Saved = $Sender->Form->Save();
+		//	if ($Saved) {
+		//		$Sender->StatusMessage = T("Your changes have been saved.");
+		//	}
+		//}
 
 		// GetView() looks for files inside plugins/PluginFolderName/views/ and returns their full path. Useful!
 		$Sender->Render($this->GetView('postscheduler_generalsettings_view.php'));
@@ -115,7 +118,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
-	 *	Add "Scheduled" link to tabs in Index page.
+	 * Adds a "Scheduled" link to tabs in Index page.
 	 *
 	 * @param Controller Sender Sending controller instance.
 	 */
@@ -129,6 +132,12 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 						 );
 	}
 
+	/**
+	 * Alters the SQL of a DiscussionModel to only show the Discussions scheduled
+	 * by current User and still not displayed.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 */
 	private function ShowUserScheduledDiscussions($Sender) {
 		$Now = date('Y-m-d H:i:s');
 		$Sender->SQL
@@ -139,6 +148,12 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			->EndWhereGroup();
 	}
 
+	/**
+	 * Alters the SQL of a DiscussionModel to hide the Discussions that are
+	 * scheduled by other Users, and not yet due to be displayed.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 */
 	private function FilterScheduledDiscussions($Sender) {
 		$Now = date('Y-m-d H:i:s');
 		$Sender->SQL
@@ -149,6 +164,12 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			->EndWhereGroup();
 	}
 
+	/**
+	 * Handler of Event Base::DiscussionMeta.
+	 * Displays schedule information for scheduled discussions.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 */
 	public function Base_DiscussionMeta_Handler($Sender) {
 		$Discussion = &$Sender->EventArguments['Discussion'];
 
@@ -165,6 +186,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
+	 * Handler of Event DiscussionModel::BeforeGet.
 	 * Alter SQL of Discussions Model to only retrieve Scheduled discussions.
 	 *
 	 * @param Controller Sender Sending controller instance.
@@ -191,15 +213,39 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$this->FilterScheduledDiscussions($Sender);
 	}
 
+	/**
+	 * Handler of Event PostController::DiscussionFormOptions.
+	 * Adds to the Discussion Add/Edit page the HTML controls required to schedule
+	 * a discussion.
+	 *
+ 	 * @param Controller Sender Sending controller instance.
+ 	 */
   public function PostController_DiscussionFormOptions_Handler($Sender) {
 		$Sender->EventArguments['Options'] .= $this->GetSchedulerControls($Sender);
   }
 
+	/**
+	 * Adds validation rules for the scheduling of Discussions.
+	 *
+	 * @param Gdn_Validation Validation The Validation object associated with a
+	 * DiscussionModel instance.
+	 */
+	private function SetDiscussionValidation(Gdn_Validation $Validation) {
+		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
+		$Validation->AddRule('ValidateScheduleTime', 'function:ValidateScheduleTime');
+
+		$Validation->ApplyRule('ScheduleTime', 'CheckNoReplies', T('Discussion cannot be scheduled because it already received replies.'));
+		$Validation->ApplyRule('ScheduleTime', 'ValidateScheduleTime', T('Schedule Time is not a valid date/time.'));
+	}
+
+	/**
+	 * Handler of Event DiscussionModel::BeforeSaveDiscussion.
+	 * It adds validation related to Post scheduling.
+	 *
+ 	 * @param Controller Sender Sending controller instance.
+ 	 */
 	public function DiscussionModel_BeforeSaveDiscussion_Handler($Sender) {
-		//$FormPostValues = $Sender->EventArguments['FormPostValues'];
-		//if(GetValue('Schedule', $FormPostValues) == 0) {
-		//	$FormPostValues['ScheduleTime'] = null;
-		//}
+		$this->SetDiscussionValidation($Sender->Validation);
 		//var_dump($FormPostValues);die();
 	}
 
@@ -219,7 +265,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	/**
 	 * Render the controls used to schedule a Post.
 	 *
-	 * @param Gdn_Controller $Sender
+ 	 * @param Controller Sender Sending controller instance.
 	 */
 	protected function GetSchedulerControls($Sender, $Wrap = FALSE) {
 		$View = $Sender->FetchView('postscheduler_controls_view', '', 'plugins/PostScheduler');
@@ -265,6 +311,15 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		PostSchedulerSchema::Uninstall();
 	}
 
+	/**
+	 * Renders the Scheduled Discussions page.
+	 * This method is an almost exact copy of DiscussionController::Index(), with
+	 * the exception that it doesn't load Announcements separately. Announcements
+	 * are retrieved as any other Discussion created by the User.
+	 *
+ 	 * @param Controller Sender Sending controller instance.
+	 * @param int Page The page to display (used by Pager).
+	 */
 	private function ShowScheduledDiscussions($Sender, $Page = '0') {
 		// Determine offset from $Page
 		list($Page, $Limit) = OffsetLimit($Page, C('Vanilla.Discussions.PerPage', 30));
@@ -298,7 +353,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		// To get only Scheduled Posts, additional WHERE clauses are required. These
 		// are added via an Event Handler, as DiscussionModel doesn't provide a way
 		// to do it.
-		$Sender->DiscussionData = $DiscussionModel->Get($Page, $Limit);
+		$Sender->DiscussionData = $DiscussionModel->Get($Page, $Limit, array('Announce' => 'all'));
 
 //		var_dump($Sender->DiscussionData);
 //		die();
