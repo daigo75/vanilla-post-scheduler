@@ -1,6 +1,6 @@
 <?php if (!defined('APPLICATION')) exit();
 /**
-{licence_client}
+{licence}
 */
 
 // Define the plugin:
