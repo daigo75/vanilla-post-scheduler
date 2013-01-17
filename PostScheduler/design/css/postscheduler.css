@@ -1,0 +1,31 @@
+div.PostSchedulerDescription {
+   font-size: 85%;
+}
+
+.ScheduledDiscussions.TabLink {
+	margin-left: 0.3em;
+}
+
+.PostInfo.ScheduleTime {
+	background-color: #ffff99;
+	padding-left: 0.5em;
+	color: blue;
+}
+
+/* Styles for Post Scheduler controls */
+.PostScheduler #Form_ScheduleTime {
+	width: 10em !important;
+	margin-left: 1em;
+}
+
+/* Style for scheduled discussions (visible and not yet visible) */
+.Scheduled {
+}
+
+/* Style for scheduled discussions (not yet visible) */
+.Scheduled.NotVisible {
+	border: 1px dotted gray !important;
+	background-image: url(../images/scheduled_notvisible.png);
+	background-position: top left;
+	background-repeat: repeat;
+}
