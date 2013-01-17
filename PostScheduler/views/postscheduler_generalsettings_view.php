@@ -3,6 +3,7 @@
 {licence}
 */
 
+// TODO Polish settings page. Since plugin requires none, just write some instructions.
 ?>
 <h1><?php echo T($this->Data['Title']); ?></h1>
 <div class="Info">
