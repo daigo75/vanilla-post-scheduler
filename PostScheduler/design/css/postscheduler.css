@@ -3,7 +3,24 @@
  * {licence}
  */
 
-div.PostSchedulerDescription {
+/* General CSS for configuration pages sections */
+.PostSchedulerPlugin legend {
+	width: 100% !important;
+}
+
+.PostSchedulerPlugin fieldset p {
+	padding-left: 20px;
+}
+
+.PostSchedulerPlugin ul {
+	list-style: disc;
+}
+
+.PostSchedulerPlugin li {
+	margin: 0 0 0.5em 1.5em;
+}
+
+.PostSchedulerPlugin .PostSchedulerDescription {
    font-size: 85%;
 }
 
@@ -19,14 +36,27 @@ div.PostSchedulerDescription {
 
 /* Styles for Post Scheduler controls */
 .PostScheduler #Form_ScheduleTime {
-	width: 10em !important;
+	width: 11em !important;
 	margin-left: 1em;
+	font-size: 100% !important;
+	padding: 3px;
+}
+
+.PostScheduler #ChangeSchedule {
+	margin-left: 0.5em;
+	padding: 2px !important;
+}
+
+.PostScheduler #VisibleScheduleTime {
+	margin-left: 0.5em;
+	font-size: 110%;
+	font-weight: bold;
 }
 
 .PostScheduler .ErrorMessage {
 	background-color: #ffff99;
 	padding: 0.5em;
-	color: red;
+	color: #CC0000;
 }
 
 /* Style for scheduled discussions (visible and not yet visible) */
@@ -39,4 +69,38 @@ div.PostSchedulerDescription {
 	background-image: url(../images/scheduled_notvisible.png);
 	background-position: top left;
 	background-repeat: repeat;
+}
+
+/* CSS for TimePicker */
+.ui-timepicker-div .ui-widget-header {
+	margin-bottom: 8px;
+}
+.ui-timepicker-div dl {
+	text-align: left;
+}
+.ui-timepicker-div dl dt {
+	height: 25px;
+	margin-bottom: -25px;
+}
+.ui-timepicker-div dl dd {
+	margin: 0 10px 10px 65px;
+}
+.ui-timepicker-div td {
+	font-size: 90%;
+}
+.ui-tpicker-grid-label {
+	background: none;
+	border: none;
+	margin: 0;
+	padding: 0;
+}
+
+.ui-timepicker-rtl{
+	direction: rtl;
+}
+.ui-timepicker-rtl dl {
+	text-align: right;
+}
+.ui-timepicker-rtl dl dd {
+	margin: 0 65px 10px 10px;
 }

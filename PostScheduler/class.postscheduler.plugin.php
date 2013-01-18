@@ -17,6 +17,7 @@ $PluginInfo['PostScheduler'] = array(
 	'AuthorEmail' => 'diego@pathtoenlightenment.net',
 	'AuthorUrl' => 'http://dev.pathtoenlightenment.net',
 	'RegisterPermissions' => array('Plugins.PostScheduler.Manage',
+																 'Plugins.PostScheduler.ScheduleDiscussions',
 																 'Plugins.PostScheduler.ViewAllScheduled'
 																 ),
 );
@@ -28,6 +29,9 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	// Values for the Schedule field
 	const SCHEDULED_YES = 1;
 	const SCHEDULED_NO = 0;
+
+	// Default jQuery UI Theme to be used by default
+	const DEFAULT_UI_THEME = 'redmond';
 
 	/**
 	 * Plugin constructor
@@ -43,7 +47,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function Base_Render_Before($Sender) {
 		$Sender->AddCssFile($this->GetResource('design/css/postscheduler.css', FALSE, FALSE));
-		$Sender->AddJsFile($this->GetResource('js/postscheduler.js', FALSE, FALSE));
 	}
 
 	/**
@@ -205,8 +208,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 
 		// If User is authorised to see all the Discussions (scheduled or not), just
 		// return, no filtering needed
-		if(Gdn::Session()->CheckPermission('Plugins.PostScheduler.ViewAllScheduled') ||
-			 Gdn::Session()->User->Admin){
+		if(Gdn::Session()->CheckPermission('Plugins.PostScheduler.ViewAllScheduled')){
 			return;
 		}
 		// Filter normal Discussions list by hiding the scheduled Discussions
@@ -215,14 +217,29 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 
 	/**
 	 * Handler of Event PostController::DiscussionFormOptions.
-	 * Adds to the Discussion Add/Edit page the HTML controls required to schedule
-	 * a discussion.
+	 * If User is authorised to schedule discussions, adds the HTML controls
+	 * required to do it to the Discussion Add/Edit page.
 	 *
  	 * @param Controller Sender Sending controller instance.
  	 */
   public function PostController_DiscussionFormOptions_Handler($Sender) {
-		$Sender->EventArguments['Options'] .= $this->GetSchedulerControls($Sender);
+		if(Gdn::Session()->CheckPermission('Plugins.PostScheduler.ScheduleDiscussions')) {
+			$Sender->EventArguments['Options'] .= $this->GetSchedulerControls($Sender);
+		}
   }
+
+	public function PostController_BeforeFormInputs_Handler($Sender) {
+		//$Sender->AddJsFile('jquery.ui.packed.js');
+		$UITheme = C('Plugin.PostScheduler.UITheme', self::DEFAULT_UI_THEME);
+
+		$Sender->AddCssFile($this->GetResource('design/jquery-ui/' . $UITheme . '/jquery-ui-1.10.0.custom.min.css', FALSE, FALSE));
+
+		$Sender->AddJsFile($this->GetResource('js/jquery-ui-1.10.0.custom.min.js', FALSE, FALSE));
+		$Sender->AddJsFile($this->GetResource('js/jquery-ui-timepicker-addon.js', FALSE, FALSE));
+		$Sender->AddJsFile($this->GetResource('js/postscheduler.js', FALSE, FALSE));
+
+		//var_dump($Sender);die();
+	}
 
 	/**
 	 * Adds validation rules for the scheduling of Discussions.
@@ -231,11 +248,19 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * DiscussionModel instance.
 	 */
 	private function SetDiscussionValidation(Gdn_Validation $Validation) {
+		$Validation->AddRule('UserAuthorisedToSchedulePost', 'function:UserAuthorisedToSchedulePost');
 		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
 		$Validation->AddRule('ValidateScheduleTime', 'function:ValidateScheduleTime');
 
-		$Validation->ApplyRule('ScheduleTime', 'CheckNoReplies', T('Discussion cannot be scheduled because it already received replies.'));
-		$Validation->ApplyRule('ScheduleTime', 'ValidateScheduleTime', T('Schedule Time is not a valid date/time.'));
+		$Validation->ApplyRule('Scheduled',
+													 'UserAuthorisedToSchedulePost',
+													 T('You are not authorised to schedule a Discussion.'));
+		$Validation->ApplyRule('ScheduleTime',
+													 'CheckNoReplies',
+													 T('Discussion cannot be scheduled because it already received replies.'));
+		$Validation->ApplyRule('ScheduleTime',
+													 'ValidateScheduleTime',
+													 T('Schedule Time is not a valid date/time.'));
 	}
 
 	/**
@@ -245,7 +270,10 @@ class PostSchedulerPlugin extends Gdn_Plugin {
  	 * @param Controller Sender Sending controller instance.
  	 */
 	public function DiscussionModel_BeforeSaveDiscussion_Handler($Sender) {
-		$this->SetDiscussionValidation($Sender->Validation);
+		// If User is trying to schedule a discussion, add the related validation rules
+		if($FormPostedValues['Scheduled'] == PostSchedulerPlugin::SCHEDULED_YES) {
+			$this->SetDiscussionValidation($Sender->Validation);
+		}
 		//var_dump($FormPostValues);die();
 	}
 
