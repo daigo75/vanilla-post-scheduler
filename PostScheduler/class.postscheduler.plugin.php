@@ -126,6 +126,11 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @param Controller Sender Sending controller instance.
 	 */
 	public function Base_AfterDiscussionTabs_Handler($Sender) {
+		// If User is not allowed to schedule Discussions, he cannot have a list of
+		// them, therefore the menu item doesn't need to be displayed
+		if(!Gdn::Session()->CheckPermission('Plugins.PostScheduler.ScheduleDiscussions')) {
+			return;
+		}
 		$CssClass = $Sender->RequestMethod == 'scheduled' ? 'Active' : '';
 		echo Wrap(Anchor(T('Mine (Scheduled)'),
 										 '/discussions/scheduled',
