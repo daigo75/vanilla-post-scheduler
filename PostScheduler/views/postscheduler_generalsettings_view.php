@@ -2,8 +2,6 @@
 /**
 {licence}
 */
-
-// TODO Polish settings page. Since plugin requires none, just write some instructions.
 ?>
 <div class="PostSchedulerPlugin">
 	<div class="Header">
