@@ -6,7 +6,7 @@
 // Define the plugin:
 $PluginInfo['PostScheduler'] = array(
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.01.17',
+	'Version' => '13.01.19',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
 	'RequiredPlugins' => FALSE,
