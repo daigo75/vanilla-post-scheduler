@@ -1,4 +1,8 @@
 /**
+{licence}
+*/
+
+/**
  * Event handler. Invoked every time a User selects a date in the DateTimePicker.
  */
 function DisplayScheduleTime(DateText, Inst) {
