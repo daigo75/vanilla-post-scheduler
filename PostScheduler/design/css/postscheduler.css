@@ -31,7 +31,14 @@ Any usage in websites generating revenue, from any source, is prohibited.
    font-size: 85%;
 }
 
-.ScheduledDiscussions.TabLink {
+/* Menu item with link to Scheduled Discussions (Vanilla 2.1) */
+.FilterMenu .MyScheduledDiscussions {
+	/* TODO Display icon next to the menu entry */
+	background: whitesmoke !important;
+}
+
+/* Tab item - Vanilla 2.0 */
+.MyScheduledDiscussions .TabLink {
 	margin-left: 0.3em;
 }
 
@@ -71,7 +78,7 @@ Any usage in websites generating revenue, from any source, is prohibited.
 }
 
 /* Style for scheduled discussions (not yet visible) */
-.Scheduled.NotVisible {
+.Scheduled.NotYetVisible {
 	border: 1px dotted gray !important;
 	background-image: url(../images/scheduled_notvisible.png);
 	background-position: top left;
