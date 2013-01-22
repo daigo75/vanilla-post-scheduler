@@ -13,7 +13,7 @@ Any usage in websites generating revenue, from any source, is prohibited.
 // Define the plugin:
 $PluginInfo['PostScheduler'] = array(
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.01.19',
+	'Version' => '13.01.21',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
 	'RequiredPlugins' => FALSE,
