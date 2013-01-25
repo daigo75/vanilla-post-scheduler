@@ -209,6 +209,29 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
+	 * Converts a Date/Time string received by the User into the corresponding
+	 * Server time, based on the time difference between the two. All date/times
+	 * are expected and returned in YYYY-MM-DD HH:MM:SS format.
+	 *
+	 * @param string DateTime An ISO Formatted date/time string in User time
+	 * zone.
+	 * @return string An ISO Formatted date/time string in Servers time
+	 * zone.
+	 */
+	private function UserDateTimeToServerDateTime($DateTime) {
+		// Calculate User's time difference, in seconds
+		$UserTimeOffset = Gdn::Session()->User->HourOffset * 3600;
+
+		/* Subtract User's time offset to calculate the correspondant time in Server
+		 * time zone.
+		 */
+		$ServerTimeStamp = Gdn_Format::ToTimestamp($DateTime) - $UserTimeOffset;
+
+		// Return the Server time corresponding to the User's time
+		return strftime('%Y-%m-%d %H:%M', $ServerTimeStamp);
+	}
+
+	/**
 	 * Vanilla 2.0 Event Handler.
 	 * Displays schedule information for scheduled discussions.
 	 *
@@ -239,7 +262,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function CategoriesController_DiscussionMeta_Handler($Sender) {
 		$this->DiscussionsController_DiscussionMeta_Handler($Sender);
 	}
-
 
 	/**
 	 * Vanilla 2.1 Event Handler.
@@ -337,11 +359,18 @@ class PostSchedulerPlugin extends Gdn_Plugin {
  	 * @param Controller Sender Sending controller instance.
  	 */
 	public function DiscussionModel_BeforeSaveDiscussion_Handler($Sender) {
+		$FormPostValues = &$Sender->EventArguments['FormPostValues'];
+		//var_dump($FormPostValues);die();
+
 		// If User is trying to schedule a discussion, add the related validation rules
-		if($FormPostedValues['Scheduled'] == PostSchedulerPlugin::SCHEDULED_YES) {
+		if($FormPostValues['Scheduled'] == PostSchedulerPlugin::SCHEDULED_YES) {
 			$this->SetDiscussionValidation($Sender->Validation);
 		}
-		//var_dump($FormPostValues);die();
+
+		//var_dump($FormPostValues['ScheduleTime']);
+		$FormPostValues['ScheduleTime'] = $this->UserDateTimeToServerDateTime($FormPostValues['ScheduleTime']);
+		//var_dump($FormPostValues['ScheduleTime']);
+		//die();
 	}
 
 	/**
