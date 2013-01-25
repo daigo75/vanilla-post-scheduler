@@ -31,7 +31,7 @@ function DisplayScheduleTime(DateText, Inst) {
 $(document).ready(function(){
 	var ScheduleTimePicker = $('#Form_ScheduleTime').datetimepicker({
 		dateFormat: 'yy-mm-dd',
-		timeFormat: 'hh:mm',
+		timeFormat: 'HH:mm',
 		timeText: PSchedulerTimeText,
 		hourText: PSchedulerHourText,
 		minuteText: PSchedulerMinuteText,
