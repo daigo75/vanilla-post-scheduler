@@ -209,7 +209,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
-	 * Vanilla 2.0 Handler.
+	 * Vanilla 2.0 Event Handler.
 	 * Displays schedule information for scheduled discussions.
 	 *
 	 * @param Controller Sender Sending controller instance.
@@ -228,6 +228,18 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			//var_dump($Discussion->ScheduleTime);
 		}
 	}
+
+	/**
+	 * Vanilla 2.0 Event Handler.
+	 * Displays schedule information for scheduled discussions.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 * @see PostScheduler::DiscussionsController_DiscussionMeta_Handler().
+	 */
+	public function CategoriesController_DiscussionMeta_Handler($Sender) {
+		$this->DiscussionsController_DiscussionMeta_Handler($Sender);
+	}
+
 
 	/**
 	 * Vanilla 2.1 Event Handler.
