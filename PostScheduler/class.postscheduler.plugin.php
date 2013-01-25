@@ -240,23 +240,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
-	 * Vanilla 2.1 Event Handler.
-	 * Calls PostSchedulerPlugin::DiscussionsController_DiscussionMeta_Handler().
-	 *
-	 * @see PostSchedulerPlugin::DiscussionsController_DiscussionMeta_Handler().
-	 */
-	public function DiscussionsController_AfterDiscussionLabels_Handler($Sender) {
-		/* This event doesn't need to be handled on My Discussions and My Scheduled
-		 * Discussions pages, as they already fire the
-		 * DiscussionsController_DiscussionMeta event, which performs the same tasks.
-		 */
-		if(in_array(Gdn::Controller()->RequestMethod, array('mine', 'scheduled'))) {
-			return;
-		}
-		return $this->DiscussionsController_DiscussionMeta_Handler($Sender);
-	}
-
-	/**
 	 * Handler of Event DiscussionModel::BeforeGet.
 	 * Alter SQL of Discussions Model to only retrieve Scheduled discussions.
 	 *
@@ -337,7 +320,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 
 	/**
 	 * Handler of Event DiscussionModel::BeforeSaveDiscussion.
-	 * It adds validation related to Post scheduling.
+	 * Adds validation related to Post scheduling.
 	 *
  	 * @param Controller Sender Sending controller instance.
  	 */
@@ -349,6 +332,12 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		//var_dump($FormPostValues);die();
 	}
 
+	/**
+	 * Handler of Event DiscussionsController::BeforeDiscussionName.
+	 * Adds CSS classes to Discussion entries, to highlight the scheduled ones.
+	 *
+ 	 * @param Controller Sender Sending controller instance.
+ 	 */
 	public function DiscussionsController_BeforeDiscussionName_Handler($Sender) {
 		$Discussion = $Sender->EventArguments['Discussion'];
 
@@ -360,6 +349,17 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		if($Discussion->ScheduleTime > $Now) {
 			$Sender->EventArguments['CssClass'] .= ' NotYetVisible';
 		}
+	}
+
+	/**
+	 * Handler of Event CategoriesController::BeforeDiscussionName.
+	 * Adds CSS classes to Discussion entries, to highlight the scheduled ones.
+	 *
+ 	 * @param Controller Sender Sending controller instance.
+ 	 * @see PostScheduler::DiscussionsController_BeforeDiscussionName_Handler().
+ 	 */
+	public function CategoriesController_BeforeDiscussionName_Handler($Sender) {
+		$this->DiscussionsController_BeforeDiscussionName_Handler($Sender);
 	}
 
 	/**
