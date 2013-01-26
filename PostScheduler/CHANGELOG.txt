@@ -10,3 +10,6 @@ Version 13.01.25
 - Improved compatibility with Vanilla 2.1b
 - Removed event handler that worked only on Vanilla 2.1a
 - Added event handler to properly render scheduled posts on Categories page
+
+Version 13.01.26
+- Added proper support for time zones.
