@@ -33,12 +33,23 @@ Any usage in websites generating revenue, from any source, is prohibited.
 			<ul>
 				<li>
 					<?php
+						echo T('The schedule date/time you will see on a Discussion is always ' .
+									 'in <strong>your time zone</strong>. That is, if you schedule ' .
+									 'a Discussion for 12 noon and you are in GMT Time Zone, you will see a message ' .
+									 'stating that the post will appear at <strong>12 noon</strong>.<br />' .
+									 'If an Administrator from Kyoto (GMT+9) would look at the same post, he would ' .
+									 'see a message saying that the post will appear at <strong>9 PM</strong>.'
+									 );
+					?>
+				</li>
+				<li>
+					<?php
 						echo T('You can change the schedule of a Discussion as many times as you like, ' .
 									 'even after is was already displayed. Keep in mind, though, that, if you ' .
 									 'reschedule a visible discussion to appear at a later date, it will disappear ' .
 									 'from the Discussions list, but it could still be accessed by typing its URL.<br />' .
 									 'To avoid confusion, it is recommended to avoid rescheduling a discussion that ' .
-									 'is already visible');
+									 'is already visible.');
 					?>
 				</li>
 				<li>

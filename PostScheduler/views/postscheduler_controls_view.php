@@ -51,7 +51,11 @@ function FormatScheduleTime($ScheduleTime) {
 
 <li class="PostScheduler Controls">
 	<?php
-	$this->Form->SetValue('ScheduleTime', FormatScheduleTime($this->Form->GetValue('ScheduleTime')));
+	// Schedule Time is stored as UTC and must be converted to Server's Local Time
+	// Zone before formatting
+	$this->Form->SetValue('ScheduleTime', FormatScheduleTime(
+		PostSchedulerPlugin::UTCDateTimeToLocalDateTime($this->Form->GetValue('ScheduleTime')))
+	);
 
 	$LastCommentID = $this->Form->GetValue('LastCommentID');
 	if(!empty($LastCommentID)) {

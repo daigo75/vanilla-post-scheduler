@@ -13,10 +13,10 @@ Any usage in websites generating revenue, from any source, is prohibited.
 // Define the plugin:
 $PluginInfo['PostScheduler'] = array(
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.01.26',
+	'Version' => '13.02.01',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
-	'RequiredPlugins' => FALSE,
+  'RequiredPlugins' => array('Logger' => '13.02.01'),
 	'HasLocale' => FALSE,
 	'SettingsUrl' => '/plugin/postscheduler',
 	'SettingsPermission' => 'Garden.AdminUser.Only',
@@ -32,7 +32,13 @@ $PluginInfo['PostScheduler'] = array(
 // Load validation functions
 require(PATH_PLUGINS . '/PostScheduler/lib/postscheduler.validation.php');
 
+/**
+ * Allows to schedule a Discussion to become visible at from a specific date and time.
+ */
 class PostSchedulerPlugin extends Gdn_Plugin {
+	// @var Logger Internal Logger.
+	private $Log;
+
 	// Values for the Schedule field
 	const SCHEDULED_YES = 1;
 	const SCHEDULED_NO = 0;
@@ -44,7 +50,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * Plugin constructor
 	 */
 	public function __construct() {
-		// dummy
+		parent::__construct();
+		$this->Log = LoggerPlugin::GetLogger();
 	}
 
 	/**
@@ -182,7 +189,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @param Controller Sender Sending controller instance.
 	 */
 	private function ShowUserScheduledDiscussions($Sender) {
-		$Now = date('Y-m-d H:i:s');
+		$Now = gmdate('Y-m-d H:i:s');
 		$Sender->SQL
 			->BeginWhereGroup()
 			->Where('d.InsertUserID', Gdn::Session()->UserID)
@@ -198,7 +205,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @param Controller Sender Sending controller instance.
 	 */
 	private function FilterScheduledDiscussions($Sender) {
-		$Now = date('Y-m-d H:i:s');
+		$Now = gmdate('Y-m-d H:i:s');
 		$Sender->SQL
 			->BeginWhereGroup()
 			->Where('d.InsertUserID', Gdn::Session()->UserID)
@@ -209,26 +216,52 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
-	 * Converts a Date/Time string received by the User into the corresponding
-	 * Server time, based on the time difference between the two. All date/times
-	 * are expected and returned in YYYY-MM-DD HH:MM:SS format.
+	 * Converts a Date/Time string into the corresponding	UTC Date/Time, based on
+	 * the time difference between the two. All date/times are expected and
+	 * returned in YYYY-MM-DD HH:MM:SS format.
 	 *
-	 * @param string DateTime An ISO Formatted date/time string in User time
-	 * zone.
-	 * @return string An ISO Formatted date/time string in Servers time
-	 * zone.
+	 * @param string DateTime An ISO Formatted date/time string.
+	 * @param float HourOffset A number indicating the time difference between
+	 * the date/time passed in time and Server time, in hours.
+	 * @return string An ISO Formatted date/time string in UTC time zone.
 	 */
-	private function UserDateTimeToServerDateTime($DateTime) {
+	public static function DateTimeToUTCDateTime($DateTime, $HourOffset) {
 		// Calculate User's time difference, in seconds
-		$UserTimeOffset = Gdn::Session()->User->HourOffset * 3600;
+		$TimeOffset = $HourOffset * 3600;
 
 		/* Subtract User's time offset to calculate the correspondant time in Server
 		 * time zone.
 		 */
-		$ServerTimeStamp = Gdn_Format::ToTimestamp($DateTime) - $UserTimeOffset;
+		$ServerTimeStamp = Gdn_Format::ToTimestamp($DateTime) - $TimeOffset;
+		// Convert Server Timestamp into a UTC Date/Time
+		$UTCDateTime = gmdate('Y-m-d H:i:s', $ServerTimeStamp);
 
-		// Return the Server time corresponding to the User's time
-		return strftime('%Y-%m-%d %H:%M', $ServerTimeStamp);
+		return $UTCDateTime;
+	}
+
+	/**
+	 * Converts a UTC Date/Time string into a Server TimeZone Date/Time. All
+	 * date/times are expected and returned in YYYY-MM-DD HH:MM:SS format.
+	 *
+	 * @param string DateTime An ISO Formatted date/time string in UTC zone.
+	 * @param string TimeZone The destination Time Zone to convert date/time.
+	 * @return string An ISO Formatted date/time string in Server time zone.
+	 */
+	public static function UTCDateTimeToLocalDateTime($DateTime, $TimeZone = null) {
+		// Assume default time zone, if none has been specified
+		if(empty($TimeZone)) {
+			$TimeZone = date_default_timezone_get();
+		}
+
+		// Instantiate a new DateTime object with original UTC Date/Time and convert
+		// it to the destination Time Zone
+		$LocalDateTime = new DateTime($DateTime, new DateTimeZone('UTC'));
+		$LocalDateTime->setTimezone(new DateTimeZone($TimeZone));
+
+		// Format the date/time in ISO format
+		$Result = $LocalDateTime->format('Y-m-d H:i:s');
+
+		return $Result;
 	}
 
 	/**
@@ -240,11 +273,13 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function DiscussionsController_DiscussionMeta_Handler($Sender) {
 		$Discussion = &$Sender->EventArguments['Discussion'];
 
-		$Now = date('Y-m-d H:i:s');
+		$Now = gmdate('Y-m-d H:i:s');
+
 		if($Discussion->Scheduled == self::SCHEDULED_YES &&
 			 $Discussion->ScheduleTime > $Now) {
 			echo Wrap(sprintf(T('Discussion will be displayed on %s.'),
-												Gdn_Format::Date($Discussion->ScheduleTime, T('Date.DefaultDateTimeFormat'))),
+												Gdn_Format::Date(self::UTCDateTimeToLocalDateTime($Discussion->ScheduleTime),
+																				 T('Date.DefaultDateTimeFormat'))),
 								'div',
 								array('class' => 'PostInfo ScheduleTime'));
 
@@ -270,6 +305,16 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @see PostSchedulerPlugin::DiscussionsController_DiscussionMeta_Handler().
 	 */
 	public function DiscussionController_AfterDiscussionBody_Handler($Sender) {
+		return $this->DiscussionsController_DiscussionMeta_Handler($Sender);
+	}
+
+	/**
+	 * Vanilla 2.0 Event Handler.
+	 * Calls PostSchedulerPlugin::DiscussionsController_DiscussionMeta_Handler().
+	 *
+	 * @see PostSchedulerPlugin::DiscussionsController_DiscussionMeta_Handler().
+	 */
+	public function DiscussionController_AfterCommentBody_Handler($Sender) {
 		return $this->DiscussionsController_DiscussionMeta_Handler($Sender);
 	}
 
@@ -337,6 +382,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * DiscussionModel instance.
 	 */
 	private function SetDiscussionValidation(Gdn_Validation $Validation) {
+		$this->Log->debug('Setting Validation Rules for Scheduled Discussion...');
+
 		$Validation->AddRule('UserAuthorisedToSchedulePost', 'function:UserAuthorisedToSchedulePost');
 		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
 		$Validation->AddRule('ValidateScheduleTime', 'function:ValidateScheduleTime');
@@ -368,7 +415,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 
 		//var_dump($FormPostValues['ScheduleTime']);
-		$FormPostValues['ScheduleTime'] = $this->UserDateTimeToServerDateTime($FormPostValues['ScheduleTime']);
+		$FormPostValues['ScheduleTime'] = self::DateTimeToUTCDateTime($FormPostValues['ScheduleTime'],
+																																	Gdn::Session()->User->HourOffset);
 		//var_dump($FormPostValues['ScheduleTime']);
 		//die();
 	}
@@ -386,7 +434,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$Sender->EventArguments['CssClass'] .= ' Scheduled';
 		}
 
-		$Now = date('Y-m-d H:i:s');
+		$Now = gmdate('Y-m-d H:i:s');
 		if($Discussion->ScheduleTime > $Now) {
 			$Sender->EventArguments['CssClass'] .= ' NotYetVisible';
 		}

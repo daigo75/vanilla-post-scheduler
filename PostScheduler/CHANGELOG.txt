@@ -13,3 +13,6 @@ Version 13.01.25
 
 Version 13.01.26
 - Added proper support for time zones.
+
+Version 13.02.01
+- Modified time zone mechanism to store all schedule date/times as UTC. Conversion to User time zone is done on the fly, before displaying the data.
