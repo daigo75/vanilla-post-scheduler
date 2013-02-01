@@ -43,9 +43,9 @@ function FormatScheduleTime($ScheduleTime) {
 }
 ?>
 <script type="text/javascript">
-	var PSchedulerTimeText = '<?php echo T('Time'); ?>';
-	var PSchedulerHourText = '<?php echo T('Hour'); ?>';
-	var PSchedulerMinuteText = '<?php echo T('Minute'); ?>';
+	var PostSchedulerTimeText = '<?php echo T('Time'); ?>';
+	var PostSchedulerHourText = '<?php echo T('Hour'); ?>';
+	var PostSchedulerMinuteText = '<?php echo T('Minute'); ?>';
 </script>
 <?php // End of JS initialisation ?>
 

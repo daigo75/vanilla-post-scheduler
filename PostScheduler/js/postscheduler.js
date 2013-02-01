@@ -32,9 +32,9 @@ $(document).ready(function(){
 	var ScheduleTimePicker = $('#Form_ScheduleTime').datetimepicker({
 		dateFormat: 'yy-mm-dd',
 		timeFormat: 'HH:mm',
-		timeText: PSchedulerTimeText,
-		hourText: PSchedulerHourText,
-		minuteText: PSchedulerMinuteText,
+		timeText: PostSchedulerTimeText,
+		hourText: PostSchedulerHourText,
+		minuteText: PostSchedulerMinuteText,
 		onSelect: DisplayScheduleTime
 	});
 
