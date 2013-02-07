@@ -535,15 +535,15 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$DiscussionModel = new DiscussionModel();
 		$DiscussionModel->Watching = TRUE;
 
-		// Get Discussion Count
-		$CountDiscussions = $DiscussionModel->GetCount();
-		$Sender->SetData('CountDiscussions', $CountDiscussions);
-
 		// Get Discussions
 		// To get only Scheduled Posts, additional WHERE clauses are required. These
 		// are added via an Event Handler, as DiscussionModel doesn't provide a way
 		// to do it.
 		$Sender->DiscussionData = $DiscussionModel->Get($Page, $Limit, array('Announce' => 'all'));
+
+		// Get Discussion Count
+		$CountDiscussions = $Sender->DiscussionData->NumRows();
+		$Sender->SetData('CountDiscussions', $CountDiscussions);
 
 //		var_dump($Sender->DiscussionData);
 //		die();
