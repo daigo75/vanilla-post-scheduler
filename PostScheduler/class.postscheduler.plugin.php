@@ -27,7 +27,7 @@ $PluginInfo['PostScheduler'] = array(
 require(PATH_PLUGINS . '/PostScheduler/lib/postscheduler.validation.php');
 
 /**
- * Allows to schedule a Discussion to become visible at from a specific date and time.
+ * Allows to schedule a Discussion to become visible from a specific date and time.
  */
 class PostSchedulerPlugin extends Gdn_Plugin {
 	// @var Logger Internal Logger.
