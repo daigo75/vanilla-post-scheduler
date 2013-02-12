@@ -1,12 +1,5 @@
 /**
-Copyright (c) 2013 Diego Zanella (http://dev.pathtoenlightenment.net)
-
-@package PostScheduler for Vanilla Forums 2.0
-@author Diego Zanella <diego@pathtoenlightenment.net>
-@copyright Copyright (c) 2013 Diego Zanella (http://dev.pathtoenlightenment.net)
-@license http://dev.pathtoenlightenment.net/noncommercial-licence/ Noncommercial Licence
-
-Any usage in websites generating revenue, from any source, is prohibited.
+{licence}
 */
 
 /**

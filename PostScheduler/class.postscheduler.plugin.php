@@ -1,20 +1,13 @@
 <?php if (!defined('APPLICATION')) exit();
 /**
-Copyright (c) 2013 Diego Zanella (http://dev.pathtoenlightenment.net)
-
-@package PostScheduler for Vanilla Forums 2.0
-@author Diego Zanella <diego@pathtoenlightenment.net>
-@copyright Copyright (c) 2013 Diego Zanella (http://dev.pathtoenlightenment.net)
-@license http://dev.pathtoenlightenment.net/noncommercial-licence/ Noncommercial Licence
-
-Any usage in websites generating revenue, from any source, is prohibited.
+{licence}
 */
 
 // Define the plugin:
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.07',
+	'Version' => '13.02.12',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01'),
@@ -383,7 +376,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * DiscussionModel instance.
 	 */
 	private function SetDiscussionValidation(Gdn_Validation $Validation) {
-		$this->Log->debug('Setting Validation Rules for Scheduled Discussion...');
+		$this->Log->trace('Setting Validation Rules for Scheduled Discussion...');
 
 		$Validation->AddRule('UserAuthorisedToSchedulePost', 'function:UserAuthorisedToSchedulePost');
 		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
