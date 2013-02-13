@@ -83,7 +83,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function Controller_Index($Sender) {
 		// Prevent non-admins from accessing this page
 		$Sender->Permission('Vanilla.Settings.Manage');
-		$Sender->SetData('PluginDescription',$this->GetPluginKey('Description'));
+		$Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
 
 		//$Validation = new Gdn_Validation();
 		//$ConfigurationModel = new Gdn_ConfigurationModel($Validation);
@@ -120,7 +120,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function Base_GetAppSettingsMenuItems_Handler($Sender) {
 		$Menu = $Sender->EventArguments['SideMenu'];
-		$Menu->AddLink('Add-ons', T('Post Scheduler'), 'plugin/postscheduler', 'Garden.AdminUser.Only');
+		$Menu->AddLink('Add-ons', $this->GetPluginKey('Name'), 'plugin/postscheduler', 'Garden.AdminUser.Only');
 	}
 
 	/**
