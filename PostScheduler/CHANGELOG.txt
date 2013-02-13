@@ -1,4 +1,4 @@
-PostScheduled for Vanilla Forums 2.0/2.1 - Change Log
+PostScheduler for Vanilla Forums 2.0/2.1 - Change Log
 
 Version 13.01.19
 - Initial Release
