@@ -7,7 +7,7 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.12',
+	'Version' => '13.02.13',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01'),
@@ -362,7 +362,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$Sender->AddCssFile('jquery-ui-1.10.0.custom.min.css', 'plugins/PostScheduler/design/jquery-ui/' . $UITheme);
 
 		$Sender->RemoveJsFile('jquery-ui-1.8.17.custom.min.js');
-		$Sender->AddJsFile('jquery-ui-1.10.0.custom.min.js', 'plugins/PostScheduler/js');
+		// Load jQuery UI from Google CDN, for faster delivery
+		$Sender->AddJsFile('http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js', '');
 		$Sender->AddJsFile('jquery-ui-timepicker-addon.js', 'plugins/PostScheduler/js');
 		$Sender->AddJsFile('postscheduler.js', 'plugins/PostScheduler/js');
 

@@ -21,3 +21,6 @@ Version 13.02.12
 - Corrected plugin declaration
 - Added licence terms
 - Updated readme.html
+
+Version 13.02.13
+- Loaded jQuery UI from Google CDN, for faster delivery
