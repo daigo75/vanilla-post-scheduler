@@ -20,3 +20,4 @@ Version 13.02.01
 Version 13.02.12
 - Corrected plugin declaration
 - Added licence terms
+- Updated readme.html
