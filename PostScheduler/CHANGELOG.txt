@@ -24,3 +24,6 @@ Version 13.02.12
 
 Version 13.02.13
 - Loaded jQuery UI from Google CDN, for faster delivery
+
+Version 13.02.14
+- Minor corrections to comments and documentation
