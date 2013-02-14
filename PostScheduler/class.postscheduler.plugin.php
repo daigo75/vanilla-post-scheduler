@@ -3,11 +3,11 @@
 {licence}
 */
 
-// Define the plugin:
+// Define the plugin
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.13',
+	'Version' => '13.02.14',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01'),
