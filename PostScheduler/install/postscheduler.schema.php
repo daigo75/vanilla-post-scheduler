@@ -10,10 +10,10 @@ require('plugin.schema.php');
  */
 class PostSchedulerSchema extends PluginSchema {
 	/**
-	 * Create the table which will store the History of Cron Executions.
+	 * Adds the columns that will indicate if a Discussion is scheduled.
 	 */
-	private function Add_FeaturedColumn($TableName) {
-		Gdn::Structure()->Table($TableName);
+	private function AddScheduledDiscussionColumns() {
+		Gdn::Structure()->Table('Discussion');
 
 		Gdn::Structure()
 			->Column('Scheduled', 'smallint', 0)
@@ -21,8 +21,11 @@ class PostSchedulerSchema extends PluginSchema {
 			->Set();
 	}
 
-	private function Drop_FeaturedColumn($TableName) {
-		Gdn::Structure()->Table($TableName);
+	/**
+	 * Drops the columns that will indicate if a Discussion is scheduled.
+	 */
+	private function DropScheduledDiscussionColumns() {
+		Gdn::Structure()->Table('Discussion');
 
 		// Drop "Scheduled" column, if it exists
 		if(Gdn::Structure()->ColumnExists('Scheduled')) {
@@ -38,13 +41,13 @@ class PostSchedulerSchema extends PluginSchema {
 	 * Create all the Database Objects in the appropriate order.
 	 */
 	protected function CreateObjects() {
-		$this->Add_FeaturedColumn('Discussion');
+		$this->AddScheduledDiscussionColumns();
 	}
 
 	/**
 	 * Delete the Database Objects.
 	 */
 	protected function DropObjects() {
-		$this->Drop_FeaturedColumn('Discussion');
+		$this->DropScheduledDiscussionColumns();
 	}
 }
