@@ -27,3 +27,6 @@ Version 13.02.13
 
 Version 13.02.14
 - Minor corrections to comments and documentation
+
+Version 13.02.20
+- Minor corrections to method naming and documentation in plugin schema class
