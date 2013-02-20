@@ -319,11 +319,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @param Controller Sender Sending controller instance.
 	 */
 	public function DiscussionModel_BeforeGet_Handler($Sender, $Args) {
-		// If controller is not Discussions, no action should be taken
-		if(Gdn::Controller()->ClassName != 'DiscussionsController') {
-			return;
-		}
-
 		// Handle requests to displaying the list of User's Scheduled Discussions
 		if(Gdn::Controller()->RequestMethod == 'scheduled') {
 			$this->ShowUserScheduledDiscussions($Sender);
