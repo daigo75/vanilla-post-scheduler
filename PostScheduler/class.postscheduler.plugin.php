@@ -7,7 +7,7 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.20',
+	'Version' => '13.02.23',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01'),
@@ -351,6 +351,12 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * Loads the CSS and JavaScript files required by the plugin.
 	 */
 	public function PostController_BeforeFormInputs_Handler($Sender) {
+		// If User is not authorised to schedule a discussion, there's no need to load
+		// the files for the UI
+		if(!Gdn::Session()->CheckPermission('Plugins.PostScheduler.ScheduleDiscussions')) {
+			return;
+		}
+
 		//$Sender->AddJsFile('jquery.ui.packed.js');
 		$UITheme = C('Plugin.PostScheduler.UITheme', self::DEFAULT_UI_THEME);
 

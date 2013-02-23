@@ -31,3 +31,6 @@ Version 13.02.14
 Version 13.02.20
 - Fixed bug in filtering of Scheduled Discussions
 - Minor corrections to method naming and documentation in plugin schema class
+
+Version 13.02.23
+- Fixed bug in rendering of Add/Edit Discussion interface that occurred when User was not authorised to schedule a Discussion
