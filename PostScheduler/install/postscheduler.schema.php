@@ -22,7 +22,7 @@ class PostSchedulerSchema extends PluginSchema {
 
 		$this->CreateIndex('Discussion',
 											 'IX_DiscussionSchedule',
-											 array('Scheduled', 'ScheduleTime'),
+											 array('ScheduleTime'),
 											 '');
 	}
 
@@ -57,7 +57,7 @@ class PostSchedulerSchema extends PluginSchema {
 
 		$this->CreateIndex('Activity',
 											 'IX_ActivitySchedule',
-											 array('Scheduled', 'ScheduleTime'),
+											 array('ScheduleTime'),
 											 '');
 	}
 
