@@ -40,6 +40,13 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	// Default jQuery UI Theme to be used by default
 	const DEFAULT_UI_THEME = 'redmond';
 
+	// @var array Holds a list of Discussions, using their Route as a key. It's
+	// used to schedule Activity Notifications, which only contain the Discussion
+	// Route. Since the same Discussion can generate multiple Activity
+	// Notifications, this variable will allow not to query the database every
+	// time.
+	private $_DiscussionsByRoute = array();
+
 	/**
 	 * Plugin constructor
 	 */
@@ -318,7 +325,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 *
 	 * @param Controller Sender Sending controller instance.
 	 */
-	public function DiscussionModel_BeforeGet_Handler($Sender, $Args) {
+	public function DiscussionModel_BeforeGet_Handler($Sender) {
 		// Handle requests to displaying the list of User's Scheduled Discussions
 		if(Gdn::Controller()->RequestMethod == 'scheduled') {
 			$this->ShowUserScheduledDiscussions($Sender);
@@ -332,6 +339,25 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 		// Filter normal Discussions list by hiding the scheduled Discussions
 		$this->FilterScheduledDiscussions($Sender);
+	}
+
+	/**
+	 * Replaces the value of FirstDate field with the ScheduleDate for discussions
+	 * that were scheduled and should now be displayed.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 */
+	public function DiscussionModel_AfterAddColumns_Handler($Sender) {
+		$DiscussionData = &$Sender->EventArguments['Data'];
+
+		$Now = gmdate('Y-m-d H:i:s');
+
+		foreach($DiscussionData as $Discussion) {
+			if($Discussion->Scheduled == self::SCHEDULED_YES &&
+				 $Discussion->ScheduleTime <= $Now) {
+				$Discussion->FirstDate = $Discussion->ScheduleTime;
+			}
+		}
 	}
 
 	/**
@@ -460,6 +486,92 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		else {
 			return $View;
 		}
+	}
+
+	private function GetDiscussionByRoute($Route) {
+		if(empty($Route)) {
+			return null;
+		}
+
+		// Check if we have the discussion already stored, to avoid fetching it again
+		$Discussion = GetValue($Route, $this->_DiscussionsByRoute);
+		if(!empty($Discussion)) {
+			return $Discussion;
+		}
+
+		// Check if the Route is related to a Discussion. If not, we don't need to
+		// do anything.
+		$RegExMatches = array();
+		if(preg_match('/^\/discussion\/([0-9]+?)\//i', $Route, $RegExMatches) != 1) {
+			return null;
+		}
+
+		// Return the Discussion ID, returned by capturing it in a RegEx group
+		$DiscussionID = GetValue(1, $RegExMatches, -1);
+
+		// Without a Discussion Id, there's no point in proceeding
+		if($DiscussionID <= 0) {
+			return null;
+		}
+
+		// Retrieve the Discussion details and store them before returning them
+		$DiscussionModel = new DiscussionModel();
+		$this->_DiscussionsByRoute[$Route] = $DiscussionModel->GetID($DiscussionID);
+
+		return $this->_DiscussionsByRoute[$Route];
+	}
+
+	public function ActivityModel_BeforeActivityInsert_Handler($Sender) {
+		// We need the Route to find out if an Activity is linked to a Discussion.
+		// This is because Activity entries have no link to other entities, and the
+		// Route is the only one we can use
+		$Route = GetValue('Route', $Sender->EventArguments['Fields']);
+
+		$Discussion = $this->GetDiscussionByRoute($Route);
+
+		// No need to do anything if the Discussion is not existing
+		if(empty($Discussion)) {
+			return;
+		}
+
+		$Sender->EventArguments['Fields']['Scheduled'] = $Discussion->Scheduled;
+		$Sender->EventArguments['Fields']['ScheduleTime'] = $Discussion->ScheduleTime;
+		return;
+
+		// If we reach this point, it means that the Discussion is scheduled to appear
+		// in the future. Therefore, any related Notification(s) should not be sent
+		// until that time
+		$ActivityID = GetValue('ActivityID', $Sender->EventArguments['Fields']);
+		$ActivityModel = new ActivityModel();
+		$ActivityModel->Update(array('Scheduled' => $Discussion->Scheduled,
+																 'ScheduleTime' => $Discussion->ScheduleTime),
+													 array('ActivityID' => $ActivityID));
+	}
+
+	public function DiscussionModel_AfterSaveDiscussion_Handler($Sender) {
+		$Fields = &$Sender->EventArguments['Fields'];
+
+		// Retrieve date/time of when Discussion was Inserted and Updated
+		$DateInserted = GetValue('DateInserted', $Fields);
+		$DateUpdated = GetValue('DateUpdated', $Fields, $DateInserted);
+
+		/* This event is triggered when a Discussion is both Inserted or Updated.
+		 * After an INSERT, DateInserted and DateUpdated will have the same value.
+		 * In such case, there's nothing to be done, as Activity was already modified
+		 * during the execution of
+		if($DateInserted == $DateUpdated) {
+			return;
+		}
+	}
+
+	public function ActivityModel_AfterActivityQuery_Handler($Sender) {
+		$Now = gmdate('Y-m-d H:i:s');
+		$Sender->SQL
+			->BeginWhereGroup()
+			->Where('a.Scheduled', null)
+			->OrWhere('a.Scheduled', 0)
+			->OrWhere('a.ScheduleTime <=', $Now)
+			->EndWhereGroup();
 	}
 
 	/**
