@@ -1,2 +1,3 @@
 *.komodotools
 /FeaturedPosts/install/plugin.schema.php
+/PostScheduler/install/plugin.schema.php
