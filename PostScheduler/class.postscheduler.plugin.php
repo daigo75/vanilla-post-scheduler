@@ -33,9 +33,13 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	// @var Logger Internal Logger.
 	private $Log;
 
-	// Values for the Schedule field
+	// Values for the Discussion.Schedule field
 	const SCHEDULED_YES = 1;
 	const SCHEDULED_NO = 0;
+
+	// Values for the Activity.Sent field
+	const SENT_YES = 1;
+	const SENT_NO = 0;
 
 	// Default jQuery UI Theme to be used by default
 	const DEFAULT_UI_THEME = 'redmond';
@@ -534,36 +538,69 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			return;
 		}
 
+		// Pass the Schedule flag and Time to the Activity model, which will save
+		// them to the database
 		$Sender->EventArguments['Fields']['Scheduled'] = $Discussion->Scheduled;
 		$Sender->EventArguments['Fields']['ScheduleTime'] = $Discussion->ScheduleTime;
-		return;
+		// Add the DiscussionID to the Activity, as it will be used to reschedule
+		// the Notification whenever the Discussion will be updated
+		$Sender->EventArguments['Fields']['DiscussionID'] = $Discussion->DiscussionID;
 
-		// If we reach this point, it means that the Discussion is scheduled to appear
-		// in the future. Therefore, any related Notification(s) should not be sent
-		// until that time
-		$ActivityID = GetValue('ActivityID', $Sender->EventArguments['Fields']);
-		$ActivityModel = new ActivityModel();
-		$ActivityModel->Update(array('Scheduled' => $Discussion->Scheduled,
-																 'ScheduleTime' => $Discussion->ScheduleTime),
-													 array('ActivityID' => $ActivityID));
+		/* NotificationSent allows to identify Activities that have already been sent
+		 * to Users. If a Discussion is scheduled in the future, then the notification
+		 * won't be sent straight away, therefore Sent field wil be set to zero. If,
+		 * instead, a Discussion is NOT scheduled, or scheduled in the past (which
+		 * doesn't make much sense, but it can happen), the related Activity will
+		 * be sent immediately. The Sent flag is, therefore, set to 1.
+		 */
+		$NotificationSent =
+			$Discussion->Scheduled == self::SCHEDULED_YES &&
+			$Discussion->ScheduleTime > gmdate('Y-m-d H:i:s') ? self::SENT_NO : self::SENT_YES;
+		$Sender->EventArguments['Fields']['NotificationSent'] = $NotificationSent;
 	}
 
 	public function DiscussionModel_AfterSaveDiscussion_Handler($Sender) {
-		$Fields = &$Sender->EventArguments['Fields'];
+		$DiscussionData = &$Sender->EventArguments['Fields'];
 
 		// Retrieve date/time of when Discussion was Inserted and Updated
-		$DateInserted = GetValue('DateInserted', $Fields);
-		$DateUpdated = GetValue('DateUpdated', $Fields, $DateInserted);
+		$DateInserted = GetValue('DateInserted', $DiscussionData);
+		$DateUpdated = GetValue('DateUpdated', $DiscussionData, $DateInserted);
 
 		/* This event is triggered when a Discussion is both Inserted or Updated.
 		 * After an INSERT, DateInserted and DateUpdated will have the same value.
 		 * In such case, there's nothing to be done, as Activity was already modified
-		 * during the execution of
+		 * during the execution of PostSchedulerPlugin::ActivityModel_BeforeActivityInsert_Handler()
+		 */
 		if($DateInserted == $DateUpdated) {
 			return;
 		}
+
+		// Update Activity schedule reflecting the information from the Discussion
+		$this->SetActivitySchedule($DiscussionData);
 	}
 
+	private function SetActivitySchedule(array $DiscussionData) {
+		$ActivityModel = new ActivityModel();
+		/* Update the Activity with the new Schedule. Field NotificationSent is
+		 * deliberately NOT updated:
+		 * - If it's currently set to 0, the Notification will be sent later,
+		 *   automatically.
+		 * - If it's set to 1, the Notification has already been sent and should not
+		 *   be sent again. In this case, the Schedule is update only for consistency
+		 *   with the Discussion.
+		 */
+		$ActivityModel->Update(array('Scheduled' => GetValue('Scheduled', $DiscussionData),
+																 'ScheduleTime' => GetValue('ScheduleTime', $DiscussionData)),
+													 array('DiscussionID' => GetValue('DiscussionID', $DiscussionData)));
+	}
+
+	/**
+	 * Alters the SQL of a ActivityModel to hide the Activities that are
+	 * scheduled to be sent at a later time. This will prevent them from being
+	 * sent immediately when a Discussion is created.
+	 *
+	 * @param Controller Sender Sending controller instance.
+	 */
 	public function ActivityModel_AfterActivityQuery_Handler($Sender) {
 		$Now = gmdate('Y-m-d H:i:s');
 		$Sender->SQL
@@ -572,6 +609,19 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			->OrWhere('a.Scheduled', 0)
 			->OrWhere('a.ScheduleTime <=', $Now)
 			->EndWhereGroup();
+	}
+
+	protected function SendScheduledNotifications() {
+		$ActivityModel = new ActivityModel();
+
+		$Now = gmdate('Y-m-d H:i:s');
+		// Retrieve all the Notifications scheduled
+		$NotificationsToSend = $ActivityModel->GetWhere(array(
+			'a.Scheduled' => 1,
+			'a.ScheduleTime <=' => $Now,
+			'a.NotificationSent' => 0,
+			)
+		);
 	}
 
 	/**

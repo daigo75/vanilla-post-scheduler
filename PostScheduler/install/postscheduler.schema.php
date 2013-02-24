@@ -53,11 +53,17 @@ class PostSchedulerSchema extends PluginSchema {
 		Gdn::Structure()
 			->Column('Scheduled', 'smallint', 0)
 			->Column('ScheduleTime', 'datetime', true)
+			->Column('NotificationSent', 'smallint', 1)
+			->Column('DiscussionID', 'smallint', true)
 			->Set();
 
 		$this->CreateIndex('Activity',
 											 'IX_ActivitySchedule',
-											 array('ScheduleTime'),
+											 array('ScheduleTime, Scheduled, NotificationSent'),
+											 '');
+		$this->CreateIndex('Activity',
+											 'IX_ActivityDiscussionID',
+											 array('DiscussionID'),
 											 '');
 	}
 
@@ -66,6 +72,7 @@ class PostSchedulerSchema extends PluginSchema {
 	 */
 	private function DropScheduledActivityNotificationColumns() {
 		$this->DropIndex('Discussion', 'IX_ActivitySchedule');
+		$this->DropIndex('Discussion', 'IX_ActivityDiscussionID');
 
 		Gdn::Structure()->Table('Activity');
 
@@ -76,6 +83,10 @@ class PostSchedulerSchema extends PluginSchema {
 		// Drop "ScheduleTime" column, if it exists
 		if(Gdn::Structure()->ColumnExists('ScheduleTime')) {
 			Gdn::Structure()->DropColumn('ScheduleTime');
+		}
+		// Drop "ScheduleTime" column, if it exists
+		if(Gdn::Structure()->ColumnExists('NotificationSent')) {
+			Gdn::Structure()->DropColumn('NotificationSent');
 		}
 	}
 
