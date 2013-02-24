@@ -7,7 +7,7 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.23',
+	'Version' => '13.02.24',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01'),
@@ -559,41 +559,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$Sender->EventArguments['Fields']['NotificationSent'] = $NotificationSent;
 	}
 
-	public function DiscussionModel_AfterSaveDiscussion_Handler($Sender) {
-		$DiscussionData = &$Sender->EventArguments['Fields'];
-
-		// Retrieve date/time of when Discussion was Inserted and Updated
-		$DateInserted = GetValue('DateInserted', $DiscussionData);
-		$DateUpdated = GetValue('DateUpdated', $DiscussionData, $DateInserted);
-
-		/* This event is triggered when a Discussion is both Inserted or Updated.
-		 * After an INSERT, DateInserted and DateUpdated will have the same value.
-		 * In such case, there's nothing to be done, as Activity was already modified
-		 * during the execution of PostSchedulerPlugin::ActivityModel_BeforeActivityInsert_Handler()
-		 */
-		if($DateInserted == $DateUpdated) {
-			return;
-		}
-
-		// Update Activity schedule reflecting the information from the Discussion
-		$this->SetActivitySchedule($DiscussionData);
-	}
-
-	private function SetActivitySchedule(array $DiscussionData) {
-		$ActivityModel = new ActivityModel();
-		/* Update the Activity with the new Schedule. Field NotificationSent is
-		 * deliberately NOT updated:
-		 * - If it's currently set to 0, the Notification will be sent later,
-		 *   automatically.
-		 * - If it's set to 1, the Notification has already been sent and should not
-		 *   be sent again. In this case, the Schedule is update only for consistency
-		 *   with the Discussion.
-		 */
-		$ActivityModel->Update(array('Scheduled' => GetValue('Scheduled', $DiscussionData),
-																 'ScheduleTime' => GetValue('ScheduleTime', $DiscussionData)),
-													 array('DiscussionID' => GetValue('DiscussionID', $DiscussionData)));
-	}
-
 	/**
 	 * Alters the SQL of a ActivityModel to hide the Activities that are
 	 * scheduled to be sent at a later time. This will prevent them from being
@@ -604,24 +569,53 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function ActivityModel_AfterActivityQuery_Handler($Sender) {
 		$Now = gmdate('Y-m-d H:i:s');
 		$Sender->SQL
+			->Join('Discussion d', 'd.DiscussionID = a.DiscussionID', 'inner')
 			->BeginWhereGroup()
-			->Where('a.Scheduled', null)
-			->OrWhere('a.Scheduled', 0)
-			->OrWhere('a.ScheduleTime <=', $Now)
+			->Where('d.Scheduled', null)
+			->OrWhere('d.Scheduled', 0)
+			->OrWhere('d.ScheduleTime <=', $Now)
 			->EndWhereGroup();
 	}
 
+	/**
+	 * Retrieves all the pending scheduled notifications which are due to be sent
+	 * and sends them to the recipients.
+	 *
+	 * @return bool True, if all the notifications were sent successfully, False otherwise.
+	 */
 	protected function SendScheduledNotifications() {
+		$this->Log->Info(T('Sending scheduled notifications...'));
 		$ActivityModel = new ActivityModel();
 
-		$Now = gmdate('Y-m-d H:i:s');
-		// Retrieve all the Notifications scheduled
-		$NotificationsToSend = $ActivityModel->GetWhere(array(
-			'a.Scheduled' => 1,
-			'a.ScheduleTime <=' => $Now,
-			'a.NotificationSent' => 0,
-			)
-		);
+		// Retrieve all the Notifications scheduled, due to be sent and not yet sent
+		// The filters on Schedule flag and Time are added by
+		// PostSchedulerPlugin::ActivityModel_AfterActivityQuery_Handler() method.
+		$ActivityNotificationsToSend = $ActivityModel->GetWhere('a.NotificationSent', 0)->Result();
+
+		try {
+			$ActivityModel->Database->BeginTransaction();
+			foreach($ActivityNotificationsToSend as $Activity) {
+				// Queue each Activity Notification for sending and update the
+				// NotificationSent flag to indicate that the entry has been processed
+				$ActivityModel->QueueNotification($Activity->ActivityID);
+				$ActivityModel->Update(array('NotificationSent' => self::SENT_YES),
+															 array('ActivityID' => $Activity->ActivityID));
+			}
+			// Send all queued Notifications
+			$ActivityModel->SendNotificationQueue();
+		}
+		catch(Exception $e) {
+			$this->Log->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
+																					$e->getMessage()));
+
+			$ActivityModel->Database->RollbackTransaction();
+			return false;
+		}
+
+		$ActivityModel->Database->CommitTransaction();
+		$this->Log->Info(sprintf(T('%d scheduled notifications sent successfully. Operation completed.'),
+														 count($ActivityNotificationsToSend)));
+		return true;
 	}
 
 	/**
@@ -744,5 +738,22 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		// Render default view (discussions/index.php)
 		$Sender->View = 'index';
 		$Sender->Render();
+	}
+
+	/*** Cron Methods ***/
+
+	/**
+	 * Implements Cron method, which will be run automaticall by Cron Plugin.
+	 */
+	public function Cron() {
+		// Retrieve and send all scheduled notifications
+		$this->SendScheduledNotifications();
+	}
+
+	/**
+	 * Register plugin for Cron Jobs.
+	 */
+	public function CronJobsPlugin_CronJobRegister_Handler($Sender){
+		$Sender->RegisterCronJob($this);
 	}
 }

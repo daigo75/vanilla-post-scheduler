@@ -34,3 +34,8 @@ Version 13.02.20
 
 Version 13.02.23
 - Fixed bug in rendering of Add/Edit Discussion interface that occurred when User was not authorised to schedule a Discussion
+
+Version 13.02.24
+- Altered display of Scheduled Discussion to show the Scheduled Date as the Discussion date
+- Added scheduling of notifications for New Discussions
+- Added integration with Cron plugin
