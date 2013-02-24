@@ -51,15 +51,13 @@ class PostSchedulerSchema extends PluginSchema {
 		Gdn::Structure()->Table('Activity');
 
 		Gdn::Structure()
-			->Column('Scheduled', 'smallint', 0)
-			->Column('ScheduleTime', 'datetime', true)
 			->Column('NotificationSent', 'smallint', 1)
 			->Column('DiscussionID', 'smallint', true)
 			->Set();
 
 		$this->CreateIndex('Activity',
-											 'IX_ActivitySchedule',
-											 array('ScheduleTime, Scheduled, NotificationSent'),
+											 'IX_ActivityNotificationSent',
+											 array('NotificationSent'),
 											 '');
 		$this->CreateIndex('Activity',
 											 'IX_ActivityDiscussionID',
@@ -71,22 +69,19 @@ class PostSchedulerSchema extends PluginSchema {
 	 * Drops the columns that will indicate if a Discussion is scheduled.
 	 */
 	private function DropScheduledActivityNotificationColumns() {
-		$this->DropIndex('Discussion', 'IX_ActivitySchedule');
+		$this->DropIndex('Discussion', 'IX_ActivityNotificationSent');
 		$this->DropIndex('Discussion', 'IX_ActivityDiscussionID');
 
 		Gdn::Structure()->Table('Activity');
 
-		// Drop "Scheduled" column, if it exists
-		if(Gdn::Structure()->ColumnExists('Scheduled')) {
-			Gdn::Structure()->DropColumn('Scheduled');
-		}
-		// Drop "ScheduleTime" column, if it exists
-		if(Gdn::Structure()->ColumnExists('ScheduleTime')) {
-			Gdn::Structure()->DropColumn('ScheduleTime');
-		}
 		// Drop "ScheduleTime" column, if it exists
 		if(Gdn::Structure()->ColumnExists('NotificationSent')) {
 			Gdn::Structure()->DropColumn('NotificationSent');
+		}
+
+		// Drop "DiscussionID" column, if it exists
+		if(Gdn::Structure()->ColumnExists('DiscussionID')) {
+			Gdn::Structure()->DropColumn('DiscussionID');
 		}
 	}
 
