@@ -110,9 +110,13 @@ class ActivityModel extends Gdn_Model {
     *
     * @since 2.0.0
     * @access public
-    * @param string $Field Column name for where clause.
-    * @param mixed $Value Value for where clause.
+    * @param mixed $Field The string on the left side of the comparison, or an associative array of
+    * Field => Value items to compare.
+    * @param mixed $Value The string on the right side of the comparison. You can optionally
+    * provide an array of DatabaseFunction => Value, which will be converted to
+    * DatabaseFunction('Value'). If DatabaseFunction contains a '%s' then sprintf will be used for to place DatabaseFunction into the value.
     * @return DataSet SQL results.
+    * @see Gdn_SqlDriver::Where()
     */
    public function GetWhere($Field, $Value = '') {
       $this->ActivityQuery();
