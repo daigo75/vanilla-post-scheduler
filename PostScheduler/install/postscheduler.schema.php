@@ -9,7 +9,7 @@ require('plugin.schema.php');
  * Handle schema changes.
  */
 class PostSchedulerSchema extends PluginSchema {
-	// @var string Stores the version of Vanilla. Used to determine which operations to perform
+	// @var string Stores the version of Vanilla. Used to determine which operations to perform.
 	private $_VanillaVersion;
 
 	public function __construct() {
