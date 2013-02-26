@@ -7,7 +7,7 @@
 function ShowOverrideStatus($OverrideClass) {
 	$Label = Wrap($OverrideClass, 'label');
 	if(defined($OverrideClass . '::OVERRIDE_VERSION')) {
-		echo Wrap(sprintf(T('%s: <span>Loaded</span>; Loaded version: %s.'),
+		echo Wrap(sprintf(T('%s: <span>Loaded</span>. Loaded version: %s.'),
 											$Label,
 											$OverrideClass::OVERRIDE_VERSION),
 							'div',

@@ -25,9 +25,9 @@
 		<h3>Description</h3>
 		Post Scheduler allows to schedule a Discussion to appear at a later date and/or time. A scheduled discussion will be invisible to all Users, except the following:
 		<ul>
-		<li>The User who started the discussion.</li>
-		<li>Super Administrators.</li>
-		<li>Any User with the permission to see all Scheduled discussions.</li>
+			<li>The User who started the discussion.</li>
+			<li>Super Administrators.</li>
+			<li>Any User with the permission to see all Scheduled discussions.</li>
 		</ul>
 
 		For more details, please see Plugin's Settings page.
@@ -38,19 +38,32 @@
 		<p>
 		Please note that the Plugin's User Interface has only been tested on Vanilla 2.0 with its default theme. Using a different theme will more likely require some adjustments in the interface.
 		</p>
+		<div>
+			<h4>Handling Scheduled Notifications</h4>
+			<p>
+				As of version 13.02.25, Post Scheduler will also delay the Notifications that are sent to Users who chose to be notified of new Discussions. When a Discussion is scheduled in the future, the notifications it generates are scheduled with it, and sent when appropriate.
+			</p>
+			<p>
+				For the above mechanism to work, it's necessary to configure your server to call the Cron script periodically. Such script is provided by the <a href="http://vanillaforums.org/addon/cronjobs-plugin" target="_blank">Cron plugin</a>. Please refer to Cron plugin instructions for more information.
+			</p>
+		</div>
 	</div>
 	<div>
 		<h3>Requirements</h3>
 		<ul>
-		<li>PHP 5.3+</li>
-		<li>Vanilla 2.0/2.1b (see <strong>Notes</strong>)</li>
-		<li>Logger Plugin (either <a href="http://dev.pathtoenlightenment.net/shop/basic-logger-for-vanilla-forums-2-0/" title="Basic Logger">Basic</a> or <a href="http://dev.pathtoenlightenment.net/shop/advanced-logger-for-vanilla-forums-2-0/" title="Advanced Logger">Advanced</a> version) 12.10.28 or newer</li>
+			<li>PHP 5.3+</li>
+			<li>Vanilla 2.0/2.1b (see <strong>Notes</strong>)</li>
+			<li>Logger Plugin (either <a href="http://dev.pathtoenlightenment.net/shop/basic-logger-for-vanilla-forums-2-0/" title="Basic Logger">Basic</a> or <a href="http://dev.pathtoenlightenment.net/shop/advanced-logger-for-vanilla-forums-2-0/" title="Advanced Logger">Advanced</a> version) 12.10.28 or newer</li>
+			<li>Cron Plugin 13.02.24 or newer</li>
 		</ul>
 	</div>
 	<div>
 		<h3>Notes</h3>
 		<ul>
-			<li>Plugin has been tested on Vanilla 2.1b and it should be compatibile with it. However, since Vanilla 2.1 is still in Beta, compatibility cannot be guaranteed. For the same reason, we provide limited assistance for installations in such environment.</li>
+			<li>Plugin has been tested on Vanilla 2.1b and it should be compatibile with it. However, since Vanilla 2.1 is still in Beta, compatibility <u>cannot be guaranteed</u>. For the same reason, we provide limited assistance for installations in such environment.</li>
+			<li>
+				Delaying of notifications on Vanilla 2.1b is <strong>experimental</strong> and could have some issues. This is due to the new mechanism that such version uses to manage notifications, which is still incomplete and contains several bugs.
+			</li>
 			<li>Highlighting of scheduled Discussions has been designed for Vanilla's default theme. Using the plugin with 3rd party themes might require some adjustment to the plugin's CSS files.</li>
 			<li>All dates and times displayed by the plugin on the frontend are in <strong>current User's timezone</strong>. That is, if a Post is scheduled for <i>00:00 GMT</i>, an Administrator in New York will see the it scheduled for <i>7:00 PM</i>.</li>
 		</ul>
@@ -58,7 +71,7 @@
 	<div>
 		<h3>Support</h3>
 		<p>
-			If you encounter any issue, or you have any question or suggestion, please <a href="http://dev.pathtoenlightenment.net/contact/"></a>contact Us</a>. We will get back to you as soon as possible.
+			If you encounter any issue, or you have any question or suggestion, please <a href="http://dev.pathtoenlightenment.net/contact/">contact Us</a>. We will get back to you as soon as possible.
 		</p>
 	</div>
 </body>

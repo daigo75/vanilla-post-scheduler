@@ -39,3 +39,7 @@ Version 13.02.24
 - Altered display of Scheduled Discussion to show the Scheduled Date as the Discussion date
 - Added scheduling of notifications for New Discussions
 - Added integration with Cron plugin
+
+Version 13.02.26
+- Added compatibility with Vanilla 2.1b1 (experimental)
+- Added view to display the status (loaded/not loaded) of required Core Overrides
