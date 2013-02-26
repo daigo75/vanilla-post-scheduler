@@ -61,9 +61,21 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$VanillaVersionParts = explode('.', APPLICATION_VERSION);
 		// Obtain Vanilla version without the period (i.e. 2.0 becomes 20)
 		$this->_VanillaVersion = $VanillaVersionParts[0] . $VanillaVersionParts[1];
+	}
 
-		// Load the Activity Manager for current version of Vanilla, if supported
-		$this->LoadActivityManager($this->_VanillaVersion);
+	/**
+	 * Loads and returns the ActivityManager for current version of Vanilla.
+	 *
+	 * @return ActivityManager An instance of the ActivityManager for current
+	 * version of Vanilla.
+	 */
+	private function GetActivityManager() {
+		if(empty($this->_ActivityManager)) {
+			// Load the Activity Manager for current version of Vanilla, if supported
+			$this->LoadActivityManager($this->_VanillaVersion);
+		}
+
+		return $this->_ActivityManager;
 	}
 
 	/**
@@ -80,7 +92,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->_ActivityManager = new $ActivityManagerClass();
 		}
 		catch(Exception $e) {
-			$this->Log->error(sprintf(T('Class not found: %s. Vanilla %s is not supported by this plugin.'),
+			$this->Log->error(sprintf(T('Class not found: %s. Unless some unexpected error occurred, it means that Vanilla %s is not supported by this plugin.'),
 																$ActivityManagerClass,
 																APPLICATION_VERSION));
 			throw $e;
@@ -542,7 +554,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function ActivityModel_BeforeActivityInsert_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
-		$this->_ActivityManager->ActivityModel_BeforeActivityInsert_Handler($Sender);
+		$this->GetActivityManager()->ActivityModel_BeforeActivityInsert_Handler($Sender);
 	}
 
 	/**
@@ -555,7 +567,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function ActivityModel_AfterActivityQuery_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
-		$this->_ActivityManager->ActivityModel_AfterActivityQuery_Handler($Sender);
+		$this->GetActivityManager()->ActivityModel_AfterActivityQuery_Handler($Sender);
 	}
 
 	/**
@@ -566,7 +578,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
-		$this->_ActivityManager->ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender);
+		$this->GetActivityManager()->ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender);
 	}
 
 	/**
@@ -577,7 +589,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	public function ActivityModel_BeforeSave_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
-		$this->_ActivityManager->ActivityModel_BeforeSave_Handler($Sender);
+		$this->GetActivityManager()->ActivityModel_BeforeSave_Handler($Sender);
 	}
 
 	/**
@@ -594,7 +606,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		try {
 			// Delegate the retrieval and sending of Notifications to the ActivityManager,
 			// which will act according to the version of Vanilla
-			$this->_ActivityManager->SendScheduledNotifications($ActivityModel);
+			$this->GetActivityManager()->SendScheduledNotifications($ActivityModel);
 		}
 		catch(Exception $e) {
 			$this->Log->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
