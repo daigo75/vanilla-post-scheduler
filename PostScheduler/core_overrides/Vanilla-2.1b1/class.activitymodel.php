@@ -17,6 +17,7 @@ Contact Vanilla Forums Inc. at support [at] vanillaforums [dot] com
  * - Added firing of event AfterActivityQuery in ActivityModel::GetWhere()
  * - Added check of Vanilla version, to prevent the file from declaring
  *   ActivityModel class in wrong Vanilla installation.
+ * - Added constant indicating that the class has been overridden.
  *
  * NOTES
  * - This file can be kept even if the Post Scheduler plugin is disabled and/or
@@ -36,7 +37,6 @@ if(preg_match('/^2\.1b1/', APPLICATION_VERSION) != 1) {
 // Debug - Check that the correct Activity Model is loaded
 //var_dump('Declared ActivityModel 2.1b1');
 
-
 /**
  * Activity Model
  *
@@ -50,6 +50,9 @@ if(preg_match('/^2\.1b1/', APPLICATION_VERSION) != 1) {
  * @package Dashboard
  */
 class ActivityModel extends Gdn_Model {
+	// @var string A string indicating that the class has been overridden.
+	const OVERRIDE_VERSION = 'PostScheduled for Vanilla 2.1b1';
+
    const NOTIFY_PUBLIC = -1;
    const NOTIFY_MODS = -2;
    const NOTIFY_ADMINS = -3;

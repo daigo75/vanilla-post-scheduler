@@ -17,6 +17,7 @@ Contact Vanilla Forums Inc. at support [at] vanillaforums [dot] com
  * - Added method ActivityModel::Update()
  * - Added check of Vanilla version, to prevent the file from declaring
  *   ActivityModel class on wrong Vanilla installation.
+ * - Added constant indicating that the class has been overridden.
  *
  * NOTES
  * - This file can be kept even if the Post Scheduler plugin is disabled and/or
@@ -37,7 +38,6 @@ if((APPLICATION_VERSION <= '2.0.10') ||
 // Debug - Check that the correct Activity Model is loaded
 //var_dump('Declared ActivityModel 2.0');
 
-
 /**
  * Activity Model
  *
@@ -51,6 +51,9 @@ if((APPLICATION_VERSION <= '2.0.10') ||
  * @package Dashboard
  */
 class ActivityModel extends Gdn_Model {
+	// @var string A string indicating that the class has been overridden.
+	const OVERRIDE_VERSION = 'PostScheduled for Vanilla 2.0.10+';
+
    /**
     * Defines the related database table name.
     */
