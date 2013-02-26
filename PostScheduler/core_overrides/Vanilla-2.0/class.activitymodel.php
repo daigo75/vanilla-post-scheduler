@@ -1,4 +1,5 @@
 <?php if (!defined('APPLICATION')) exit();
+
 /*
 Copyright 2008, 2009 Vanilla Forums Inc.
 This file is part of Garden.
@@ -14,6 +15,8 @@ Contact Vanilla Forums Inc. at support [at] vanillaforums [dot] com
  * following changes have been made:
  * - Added method ActivityModel::Insert()
  * - Added method ActivityModel::Update()
+ * - Added check of Vanilla version, to prevent the file from declaring
+ *   ActivityModel class on wrong Vanilla installation.
  *
  * NOTES
  * - This file can be kept even if the Post Scheduler plugin is disabled and/or
@@ -25,6 +28,15 @@ Contact Vanilla Forums Inc. at support [at] vanillaforums [dot] com
  * If you would like to have more information about the modifications, please
  * contact the author, Diego Zanella <diego@pathtoenlightenment.net>.
  */
+
+if((APPLICATION_VERSION <= '2.0.10') ||
+	 (APPLICATION_VERSION >= '2.1')) {
+	return;
+}
+
+// Debug - Check that the correct Activity Model is loaded
+//var_dump('Declared ActivityModel 2.0');
+
 
 /**
  * Activity Model

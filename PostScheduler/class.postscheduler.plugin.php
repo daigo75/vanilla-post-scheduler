@@ -43,13 +43,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	// Default jQuery UI Theme to be used by default
 	const DEFAULT_UI_THEME = 'redmond';
 
-	// @var array Holds a list of Discussions, using their Route as a key. It's
-	// used to schedule Activity Notifications, which only contain the Discussion
-	// Route. Since the same Discussion can generate multiple Activity
-	// Notifications, this variable will allow not to query the database every
-	// time.
-	private $_DiscussionsByRoute = array();
-
 	/* @var ActivityManager Handles all the operations regarding Activity data.
 	 * Since Activity Model changes with Vanilla versions, there is an Activity
 	 * Manager for each supported version, which handles the data accordingly.
@@ -546,6 +539,23 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	}
 
 	/**
+	 * Vanilla 2.1 event handler. Event fired by modified ActivityModel.
+	 *
+	 *
+	 */
+	public function ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender) {
+		// Delegate the handling to the ActivityManager, which will act according
+		// to the version of Vanilla
+		$this->_ActivityManager->ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender);
+	}
+
+	public function ActivityModel_BeforeSave_Handler($Sender) {
+		// Delegate the handling to the ActivityManager, which will act according
+		// to the version of Vanilla
+		$this->_ActivityManager->ActivityModel_BeforeSave_Handler($Sender);
+	}
+
+	/**
 	 * Retrieves all the pending scheduled notifications which are due to be sent
 	 * and sends them to the recipients.
 	 *
@@ -566,7 +576,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 																					$e->getMessage()));
 
 			$ActivityModel->Database->RollbackTransaction();
-			return false;
+			throw $e;
 		}
 
 		$ActivityModel->Database->CommitTransaction();

@@ -17,6 +17,18 @@ abstract class ActivityManager {
 		// operation.
 	}
 
+	public function ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender) {
+		// Intentionally left empty. This method is a placeholder, but, depending on
+		// the version of Vanilla, it doesn't necessarily have to perform any
+		// operation.
+	}
+
+	public function ActivityModel_BeforeSave_Handler($Sender) {
+		// Intentionally left empty. This method is a placeholder, but, depending on
+		// the version of Vanilla, it doesn't necessarily have to perform any
+		// operation.
+	}
+
 	/**
 	 * Alters the SQL of a ActivityModel to hide the Activities that are
 	 * scheduled to be sent at a later time. This will prevent them from being

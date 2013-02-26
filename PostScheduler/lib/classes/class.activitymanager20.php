@@ -14,6 +14,13 @@ class ActivityManager20 extends ActivityManager {
 	// @var int Indicates that a Notification has not yet been sent.
 	const SENT_NO = 0;
 
+	// @var array Holds a list of Discussions, using their Route as a key. It's
+	// used to schedule Activity Notifications, which only contain the Discussion
+	// Route. Since the same Discussion can generate multiple Activity
+	// Notifications, this variable will allow not to query the database every
+	// time.
+	private $_DiscussionsByRoute = array();
+
 
 	private function GetDiscussionByRoute($Route) {
 		if(empty($Route)) {
@@ -87,7 +94,7 @@ class ActivityManager20 extends ActivityManager {
 	public function ActivityModel_AfterActivityQuery_Handler($Sender) {
 		$Now = gmdate('Y-m-d H:i:s');
 		$Sender->SQL
-			->Join('Discussion d', 'd.DiscussionID = a.DiscussionID', 'inner')
+			->LeftJoin('Discussion d', 'd.DiscussionID = a.DiscussionID')
 			->BeginWhereGroup()
 			->Where('d.Scheduled', null)
 			->OrWhere('d.Scheduled', 0)
