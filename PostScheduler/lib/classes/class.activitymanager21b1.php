@@ -4,6 +4,12 @@
 {licence}
 */
 
+/**
+ * Contains handles and methods to alter the standard workflow of Vanilla
+ * Activity Notifications.
+ *
+ * This class is compatible only with Vanilla 2.1b1.
+ */
 class ActivityManager21b1 extends ActivityManager {
 	/* @var int Indicates that a Notification has been scheduled. The value "103"
 	 * comes from the fact that "3" means "pending". We add 100 to make sure that
@@ -61,7 +67,6 @@ class ActivityManager21b1 extends ActivityManager {
 			->OrWhere('d.ScheduleTime <=', $Now)
 			->EndWhereGroup();
 	}
-
 
 	/**
 	 * Processes all the Scheduled Notifications and sends them by email. Additionally,

@@ -78,6 +78,31 @@
 	background-repeat: repeat;
 }
 
+/*TODO Move Core Overrides styles to their own plugin*/
+/* Status of Core Overrides */
+#Status .Info {
+	margin-top: 0;
+	padding-top: 0;
+}
+
+.Overrides li {
+	margin: 0 0 0.5em 1.5em;
+}
+
+.Overrides .OverrideFound label,
+.Overrides .OverrideFound span {
+	font-weight: bold;
+}
+
+.Overrides .OverrideFound span {
+	color: green;
+}
+
+.Overrides .OverrideNotFound span {
+	color: red;
+}
+
+
 /* CSS for TimePicker */
 .ui-timepicker-div .ui-widget-header {
 	margin-bottom: 8px;

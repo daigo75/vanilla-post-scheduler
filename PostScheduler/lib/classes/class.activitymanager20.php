@@ -4,6 +4,12 @@
 {licence}
 */
 
+/**
+ * Contains handles and methods to alter the standard workflow of Vanilla
+ * Activity Notifications.
+ *
+ * This class is compatible only with Vanilla 2.0.
+ */
 class ActivityManager20 extends ActivityManager {
 	/* @var int Indicates that a Notification has been sent. Constant SENT_YES has
 	 * a value of 2 because that's the value used by Vanilla 2.1 to indicate that
@@ -14,14 +20,24 @@ class ActivityManager20 extends ActivityManager {
 	// @var int Indicates that a Notification has not yet been sent.
 	const SENT_NO = 0;
 
-	// @var array Holds a list of Discussions, using their Route as a key. It's
-	// used to schedule Activity Notifications, which only contain the Discussion
-	// Route. Since the same Discussion can generate multiple Activity
-	// Notifications, this variable will allow not to query the database every
-	// time.
+	/* @var array Holds a list of Discussions, using their Route as a key. It's
+	 * used to schedule Activity Notifications, which only contain the Discussion
+	 * Route. Since the same Discussion can generate multiple Activity
+	 * Notifications, this variable will allow not to query the database every
+	 * time.
+	 */
 	private $_DiscussionsByRoute = array();
 
-
+	/**
+	 * Retrieves a Discussion by using the Route saved with an Activity. This
+	 * method is needed because there is no link, in Vanilla 2.0, between an
+	 * Activity and the entity that generated it, and the Route is the only way to
+	 * get back to the Discussion.
+	 *
+	 * @param string Route The Route saved with the Activity.
+	 * @return int|null The ID of the Discussion linked to the Route, or null if
+	 * it's not found.
+	 */
 	private function GetDiscussionByRoute($Route) {
 		if(empty($Route)) {
 			return null;
@@ -55,6 +71,11 @@ class ActivityManager20 extends ActivityManager {
 		return $this->_DiscussionsByRoute[$Route];
 	}
 
+	/**
+	 * Event handler. Fired before an Activity is added to Activity table.
+	 *
+	 * @param Controller Sender Requesting controller instance.
+	 */
 	public function ActivityModel_BeforeActivityInsert_Handler($Sender) {
 		// We need the Route to find out if an Activity is linked to a Discussion.
 		// This is because Activity entries have no link to other entities, and the
@@ -102,6 +123,14 @@ class ActivityManager20 extends ActivityManager {
 			->EndWhereGroup();
 	}
 
+	/**
+	 * Retrieves all scheduled notifications that are due to be sent and emails
+	 * them to User who requested to be notified. Must be implemented by
+	 * descendant classes.
+	 *
+	 * @param ActivityModel ActivityModel The Activity Model to use to retrieve
+	 * the pending notifications.
+	 */
 	public function SendScheduledNotifications(ActivityModel $ActivityModel) {
 		// Retrieve all the Notifications scheduled, due to be sent and not yet sent
 		// The filters on Schedule flag and Time are added by

@@ -118,7 +118,21 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$this->Dispatch($Sender, $Sender->RequestArgs);
 	}
 
+	/**
+	 * Renders the default page. Redirects to Settings page.
+	 *
+   * @param Controller Sender Sending controller instance.
+	 */
 	public function Controller_Index($Sender) {
+		$this->Controller_Settings($Sender);
+	}
+
+	/**
+	 * Renders the Settings page.
+	 *
+   * @param Controller Sender Sending controller instance.
+	 */
+	public function Controller_Settings($Sender) {
 		// Prevent non-admins from accessing this page
 		$Sender->Permission('Vanilla.Settings.Manage');
 		$Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
@@ -519,6 +533,11 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 	}
 
+	/**
+	 * Event handler. Fired before an Activity is added to Activity table.
+	 *
+	 * @param Controller Sender Requesting controller instance.
+	 */
 	public function ActivityModel_BeforeActivityInsert_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
@@ -549,6 +568,11 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		$this->_ActivityManager->ActivityModel_BeforeProcessingActivityNotifications_Handler($Sender);
 	}
 
+	/**
+	 * Event handler. Fired before an Activity is saved to the Activity table.
+	 *
+	 * @param Controller Sender Requesting controller instance.
+	 */
 	public function ActivityModel_BeforeSave_Handler($Sender) {
 		// Delegate the handling to the ActivityManager, which will act according
 		// to the version of Vanilla
