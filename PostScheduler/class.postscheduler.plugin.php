@@ -11,6 +11,7 @@ $PluginInfo['PostScheduler'] = array(
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',
+														 'Foundation' => '13.02.27',
 														 'CronJobs' => '13.02.24',),
 	'HasLocale' => FALSE,
 	'SettingsUrl' => '/plugin/postscheduler',

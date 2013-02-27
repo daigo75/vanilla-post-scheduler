@@ -3,23 +3,6 @@
 {licence}
 */
 
-// TODO Move this method to a separate plugin which will handle the Core Overrides
-function ShowOverrideStatus($OverrideClass) {
-	$Label = Wrap($OverrideClass, 'label');
-	if(defined($OverrideClass . '::OVERRIDE_VERSION')) {
-		echo Wrap(sprintf(T('%s: <span>Loaded</span>. Loaded version: %s.'),
-											$Label,
-											$OverrideClass::OVERRIDE_VERSION),
-							'div',
-							array('class' => 'OverrideFound'));
-	}
-	else {
-		echo Wrap(sprintf(T('%s: <span>Not found</span>.'),
-											$Label),
-							'div',
-							array('class' => 'OverrideNotFound'));
-	}
-}
 ?>
 <div class="PostSchedulerPlugin">
 	<div class="Header">
@@ -83,28 +66,6 @@ function ShowOverrideStatus($OverrideClass) {
 					?>
 				</li>
 			</ul>
-		</div>
-		<div id="Status">
-			<?php
-				echo Wrap(T('Status'), 'h3');
-				echo Wrap(T('Core Overrides'), 'h4');
-				echo Wrap(T('Core overrides are special files that extend some parts of Vanilla Core. ' .
-										'The overrides listed below are required for this plugin to work correctly. ' .
-										'If you see any message in red, it means that the indicated override has not ' .
-										'been loaded, and the plugin might not work correctly. If that is the case, ' .
-										'please <a href="http://dev.pathtoenlightenment.net/contact/">contact Support</a>.'),
-									'div',
-									array('class' => 'Info'));
-			?>
-			<div class="Overrides Info">
-				<ul>
-					<li>
-						<?php
-							ShowOverrideStatus('ActivityModel');
-						?>
-					</li>
-				</ul>
-			</div>
 		</div>
 	</div>
 </div>
