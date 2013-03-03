@@ -7,11 +7,11 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.26',
+	'Version' => '13.03.03',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',
-														 'Foundation' => '13.02.27',
+														 'AeliaFoundationClasses' => '13.02.27',
 														 'CronJobs' => '13.02.24',),
 	'HasLocale' => FALSE,
 	'SettingsUrl' => '/plugin/postscheduler',
@@ -32,8 +32,21 @@ require(PATH_PLUGINS . '/PostScheduler/lib/postscheduler.validation.php');
  * Allows to schedule a Discussion to become visible from a specific date and time.
  */
 class PostSchedulerPlugin extends Gdn_Plugin {
-	// @var Logger Internal Logger.
-	private $Log;
+	// @var Logger The Logger used by the class.
+	private $_Log;
+
+	/**
+	 * Returns the instance of the Logger used by the class.
+	 *
+	 * @param Logger An instance of the Logger.
+	 */
+	protected function Log() {
+		if(empty($this->_Log)) {
+			$this->_Log = LoggerPlugin::GetLogger();
+		}
+
+		return $this->_Log();
+	}
 
 	// @var string Stores the version of Vanilla. Used to determine which operations to perform.
 	private $_VanillaVersion;
@@ -56,7 +69,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->Log = LoggerPlugin::GetLogger();
 
 		// Split Vanilla version into its parts (major version, minor version, release, build)
 		$VanillaVersionParts = explode('.', APPLICATION_VERSION);
@@ -93,7 +105,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->_ActivityManager = new $ActivityManagerClass();
 		}
 		catch(Exception $e) {
-			$this->Log->error(sprintf(T('Class not found: %s. Unless some unexpected error occurred, it means that Vanilla %s is not supported by this plugin.'),
+			$this->Log()->error(sprintf(T('Class not found: %s. Unless some unexpected error occurred, it means that Vanilla %s is not supported by this plugin.'),
 																$ActivityManagerClass,
 																APPLICATION_VERSION));
 			throw $e;
@@ -463,7 +475,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * DiscussionModel instance.
 	 */
 	private function SetDiscussionValidation(Gdn_Validation $Validation) {
-		$this->Log->trace('Setting Validation Rules for Scheduled Discussion...');
+		$this->Log()->trace('Setting Validation Rules for Scheduled Discussion...');
 
 		$Validation->AddRule('UserAuthorisedToSchedulePost', 'function:UserAuthorisedToSchedulePost');
 		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
@@ -600,7 +612,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @return bool True, if all the notifications were sent successfully, False otherwise.
 	 */
 	protected function SendScheduledNotifications() {
-		$this->Log->Info(T('Sending scheduled notifications...'));
+		$this->Log()->Info(T('Sending scheduled notifications...'));
 		$ActivityModel = new ActivityModel();
 
 		$ActivityModel->Database->BeginTransaction();
@@ -610,7 +622,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->GetActivityManager()->SendScheduledNotifications($ActivityModel);
 		}
 		catch(Exception $e) {
-			$this->Log->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
+			$this->Log()->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
 																					$e->getMessage()));
 
 			$ActivityModel->Database->RollbackTransaction();
@@ -618,7 +630,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 
 		$ActivityModel->Database->CommitTransaction();
-		$this->Log->Info(sprintf(T('%d scheduled notifications sent successfully. Operation completed.'),
+		$this->Log()->Info(sprintf(T('%d scheduled notifications sent successfully. Operation completed.'),
 														 count($ActivityNotificationsToSend)));
 		return true;
 	}

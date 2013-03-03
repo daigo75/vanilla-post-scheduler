@@ -8,7 +8,7 @@
  * Base class containing handles and methods to alter the standard workflow of
  * Vanilla Activity Notifications.
  */
-abstract class ActivityManager extends FoundationClass {
+abstract class ActivityManager extends AeliaBaseClass {
 	/**
 	 * Class constructor.
 	 *
