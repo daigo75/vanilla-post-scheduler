@@ -45,7 +45,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->_Log = LoggerPlugin::GetLogger();
 		}
 
-		return $this->_Log();
+		return $this->_Log;
 	}
 
 	// @var string Stores the version of Vanilla. Used to determine which operations to perform.
