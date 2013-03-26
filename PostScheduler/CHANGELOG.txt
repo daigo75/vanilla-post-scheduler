@@ -49,3 +49,4 @@ Version 13.02.27
 
 Version 13.03.26
 - Fixed minor bug in logging in PostSchedulerPlugin::SendScheduledNotifications()
+- Added display of status of required classes overrides
