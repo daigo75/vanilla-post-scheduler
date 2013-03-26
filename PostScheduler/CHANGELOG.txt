@@ -43,3 +43,6 @@ Version 13.02.24
 Version 13.02.26
 - Added compatibility with Vanilla 2.1b1 (experimental)
 - Added view to display the status (loaded/not loaded) of required Core Overrides
+
+Version 13.03.26
+- Fixed minor bug in logging in PostSchedulerPlugin::SendScheduledNotifications()

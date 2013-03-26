@@ -7,7 +7,7 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.03.03',
+	'Version' => '13.03.26',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',
@@ -630,8 +630,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 
 		$ActivityModel->Database->CommitTransaction();
-		$this->Log()->Info(sprintf(T('%d scheduled notifications sent successfully. Operation completed.'),
-														 count($ActivityNotificationsToSend)));
+		$this->Log()->Info(T('Notifications sent successfully. Operation completed.'));
 		return true;
 	}
 
