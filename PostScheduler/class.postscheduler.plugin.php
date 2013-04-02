@@ -15,7 +15,7 @@ $PluginInfo['PostScheduler'] = array(
 														 'CronJobs' => '13.02.24',),
 	'HasLocale' => FALSE,
 	'SettingsUrl' => '/plugin/postscheduler',
-	'SettingsPermission' => 'Garden.AdminUser.Only',
+	'SettingsPermission' => 'Garden.Settings.Manage',
 	'Author' => 'Diego Zanella',
 	'AuthorEmail' => 'diego@pathtoenlightenment.net',
 	'AuthorUrl' => 'http://dev.pathtoenlightenment.net',
@@ -198,7 +198,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function Base_GetAppSettingsMenuItems_Handler($Sender) {
 		$Menu = $Sender->EventArguments['SideMenu'];
-		$Menu->AddLink('Add-ons', $this->GetPluginKey('Name'), 'plugin/postscheduler', 'Garden.AdminUser.Only');
+		$Menu->AddLink('Add-ons', $this->GetPluginKey('Name'), 'plugin/postscheduler', 'Garden.Settings.Manage');
 	}
 
 	/**
