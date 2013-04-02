@@ -1,52 +1,55 @@
 PostScheduler for Vanilla Forums 2.0/2.1 - Change Log
 
-Version 13.01.19
+13.01.19
 - Initial Release
 
-Version 13.01.21
+13.01.21
 - Added compatibility with Vanilla 2.1
 
-Version 13.01.25
+13.01.25
 - Improved compatibility with Vanilla 2.1b
 - Removed event handler that worked only on Vanilla 2.1a
 - Added event handler to properly render scheduled posts on Categories page
 
-Version 13.01.26
+13.01.26
 - Added proper support for time zones
 
-Version 13.02.01
-- Modified time zone mechanism to store all schedule date/times as UTC. Conversion to User time zone is done on the fly, before displaying the data
+13.02.01
+- Modified time zone mechanism to store all schedule date/times as UTC. Conto User time zone is done on the fly, before displaying the data
 
-Version 13.02.12
+13.02.12
 - Corrected plugin declaration
 - Added licence terms
 - Updated readme.html
 
-Version 13.02.13
+13.02.13
 - Loaded jQuery UI from Google CDN, for faster delivery
 
-Version 13.02.14
+13.02.14
 - Minor corrections to comments and documentation
 
-Version 13.02.20
+13.02.20
 - Fixed bug in filtering of Scheduled Discussions
 - Minor corrections to method naming and documentation in plugin schema class
 
-Version 13.02.23
+13.02.23
 - Fixed bug in rendering of Add/Edit Discussion interface that occurred when User was not authorised to schedule a Discussion
 
-Version 13.02.24
+13.02.24
 - Altered display of Scheduled Discussion to show the Scheduled Date as the Discussion date
 - Added scheduling of notifications for New Discussions
 - Added integration with Cron plugin
 
-Version 13.02.26
+13.02.26
 - Added compatibility with Vanilla 2.1b1 (experimental)
 - Added view to display the status (loaded/not loaded) of required Core Overrides
 
-Version 13.02.27
+13.02.27
 - Added dependency from Aelia Foundation Classes plugin
 
-Version 13.03.26
+13.03.26
 - Fixed minor bug in logging in PostSchedulerPlugin::SendScheduledNotifications()
 - Added display of status of required classes overrides
+
+13.04.02
+- Corrected issue with permissions. Previous versions allowed only SuperAdmin to access Plugin's settings
