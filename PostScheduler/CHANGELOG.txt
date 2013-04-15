@@ -53,3 +53,6 @@ PostScheduler for Vanilla Forums 2.0/2.1 - Change Log
 
 13.04.02
 - Corrected issue with permissions. Previous versions allowed only SuperAdmin to access Plugin's settings
+
+13.04.15
+- Improved handling of edge conditions with Discussions created before the plugin was enabled

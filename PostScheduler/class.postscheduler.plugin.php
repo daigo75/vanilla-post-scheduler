@@ -7,7 +7,7 @@
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.04.02',
+	'Version' => '13.04.15',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',
@@ -347,8 +347,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 
 		$Now = gmdate('Y-m-d H:i:s');
 
-		if($Discussion->Scheduled == self::SCHEDULED_YES &&
-			 $Discussion->ScheduleTime > $Now) {
+		if(GetValue('Scheduled', $Discussion) == self::SCHEDULED_YES &&
+			 GetValue('ScheduleTime', $Discussion) > $Now) {
 			echo Wrap(sprintf(T('Discussion will be displayed on %s.'),
 												Gdn_Format::Date(self::UTCDateTimeToLocalDateTime($Discussion->ScheduleTime),
 																				 T('Date.DefaultDateTimeFormat'))),
