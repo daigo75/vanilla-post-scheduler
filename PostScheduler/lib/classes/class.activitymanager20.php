@@ -1,8 +1,6 @@
 <?php if (!defined('APPLICATION')) exit();
 
-/**
-{licence}
-*/
+
 
 /**
  * Contains handles and methods to alter the standard workflow of Vanilla
@@ -13,7 +11,7 @@
 class ActivityManager20 extends ActivityManager {
 	/* @var int Indicates that a Notification has been sent. Constant SENT_YES has
 	 * a value of 2 because that's the value used by Vanilla 2.1 to indicate that
-	 * a notification was sent. Vanilla 2.0 doesn't anything analogous, therefore
+	 * a notification was sent. Vanilla 2.0 doesn't have anything analogous, therefore
 	 * we can use the same value existing in 2.1 to keep the mechanism consistent.
 	 */
 	const SENT_YES = 2;

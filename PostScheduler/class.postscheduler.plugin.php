@@ -1,20 +1,24 @@
 <?php if (!defined('APPLICATION')) exit();
+
 /**
-{licence}
+@package PostScheduler for Vanilla Forums
+@author Aelia <admin@aelia.co>
+@license GPLv3 http://www.gnu.org/copyleft/gpl.html
 */
 
 // Define the plugin
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.02.26',
+	'Version' => '13.04.15b',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',
+														 'AeliaFoundationClasses' => '13.02.27',
 														 'CronJobs' => '13.02.24',),
 	'HasLocale' => FALSE,
 	'SettingsUrl' => '/plugin/postscheduler',
-	'SettingsPermission' => 'Garden.AdminUser.Only',
+	'SettingsPermission' => 'Garden.Settings.Manage',
 	'Author' => 'Diego Zanella',
 	'AuthorEmail' => 'diego@pathtoenlightenment.net',
 	'AuthorUrl' => 'http://dev.pathtoenlightenment.net',
@@ -31,8 +35,21 @@ require(PATH_PLUGINS . '/PostScheduler/lib/postscheduler.validation.php');
  * Allows to schedule a Discussion to become visible from a specific date and time.
  */
 class PostSchedulerPlugin extends Gdn_Plugin {
-	// @var Logger Internal Logger.
-	private $Log;
+	// @var Logger The Logger used by the class.
+	private $_Log;
+
+	/**
+	 * Returns the instance of the Logger used by the class.
+	 *
+	 * @param Logger An instance of the Logger.
+	 */
+	protected function Log() {
+		if(empty($this->_Log)) {
+			$this->_Log = LoggerPlugin::GetLogger();
+		}
+
+		return $this->_Log;
+	}
 
 	// @var string Stores the version of Vanilla. Used to determine which operations to perform.
 	private $_VanillaVersion;
@@ -55,7 +72,6 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->Log = LoggerPlugin::GetLogger();
 
 		// Split Vanilla version into its parts (major version, minor version, release, build)
 		$VanillaVersionParts = explode('.', APPLICATION_VERSION);
@@ -92,7 +108,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->_ActivityManager = new $ActivityManagerClass();
 		}
 		catch(Exception $e) {
-			$this->Log->error(sprintf(T('Class not found: %s. Unless some unexpected error occurred, it means that Vanilla %s is not supported by this plugin.'),
+			$this->Log()->error(sprintf(T('Class not found: %s. Unless some unexpected error occurred, it means that Vanilla %s is not supported by this plugin.'),
 																$ActivityManagerClass,
 																APPLICATION_VERSION));
 			throw $e;
@@ -185,7 +201,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 */
 	public function Base_GetAppSettingsMenuItems_Handler($Sender) {
 		$Menu = $Sender->EventArguments['SideMenu'];
-		$Menu->AddLink('Add-ons', $this->GetPluginKey('Name'), 'plugin/postscheduler', 'Garden.AdminUser.Only');
+		$Menu->AddLink('Add-ons', $this->GetPluginKey('Name'), 'plugin/postscheduler', 'Garden.Settings.Manage');
 	}
 
 	/**
@@ -334,8 +350,8 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 
 		$Now = gmdate('Y-m-d H:i:s');
 
-		if($Discussion->Scheduled == self::SCHEDULED_YES &&
-			 $Discussion->ScheduleTime > $Now) {
+		if(GetValue('Scheduled', $Discussion) == self::SCHEDULED_YES &&
+			 GetValue('ScheduleTime', $Discussion) > $Now) {
 			echo Wrap(sprintf(T('Discussion will be displayed on %s.'),
 												Gdn_Format::Date(self::UTCDateTimeToLocalDateTime($Discussion->ScheduleTime),
 																				 T('Date.DefaultDateTimeFormat'))),
@@ -462,7 +478,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * DiscussionModel instance.
 	 */
 	private function SetDiscussionValidation(Gdn_Validation $Validation) {
-		$this->Log->trace('Setting Validation Rules for Scheduled Discussion...');
+		$this->Log()->trace('Setting Validation Rules for Scheduled Discussion...');
 
 		$Validation->AddRule('UserAuthorisedToSchedulePost', 'function:UserAuthorisedToSchedulePost');
 		$Validation->AddRule('CheckNoReplies', 'function:CheckNoReplies');
@@ -599,7 +615,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 	 * @return bool True, if all the notifications were sent successfully, False otherwise.
 	 */
 	protected function SendScheduledNotifications() {
-		$this->Log->Info(T('Sending scheduled notifications...'));
+		$this->Log()->Info(T('Sending scheduled notifications...'));
 		$ActivityModel = new ActivityModel();
 
 		$ActivityModel->Database->BeginTransaction();
@@ -609,7 +625,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 			$this->GetActivityManager()->SendScheduledNotifications($ActivityModel);
 		}
 		catch(Exception $e) {
-			$this->Log->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
+			$this->Log()->error($ErrMsg = sprintf(T('Error occurred while sending scheduled Notifications. Error message: %s'),
 																					$e->getMessage()));
 
 			$ActivityModel->Database->RollbackTransaction();
@@ -617,8 +633,7 @@ class PostSchedulerPlugin extends Gdn_Plugin {
 		}
 
 		$ActivityModel->Database->CommitTransaction();
-		$this->Log->Info(sprintf(T('%d scheduled notifications sent successfully. Operation completed.'),
-														 count($ActivityNotificationsToSend)));
+		$this->Log()->Info(T('Notifications sent successfully. Operation completed.'));
 		return true;
 	}
 

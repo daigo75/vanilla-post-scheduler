@@ -1,7 +1,5 @@
 <?php if (!defined('APPLICATION')) exit();
-/**
-{licence}
-*/
+
 
 /**
  * Validation functions for Post Scheduler plugin.

@@ -1,23 +1,19 @@
 <?php if (!defined('APPLICATION')) exit();
 
-/**
-{licence}
-*/
+
 
 /**
  * Base class containing handles and methods to alter the standard workflow of
  * Vanilla Activity Notifications.
  */
-abstract class ActivityManager {
-	private $Log;
-
+abstract class ActivityManager extends AeliaBaseClass {
 	/**
 	 * Class constructor.
 	 *
 	 * @return ActivityManager An instance of ActivityManager.
 	 */
 	public function __construct() {
-		$this->Log = LoggerPlugin::GetLogger();
+		parent::__construct();
 	}
 
 	/**
