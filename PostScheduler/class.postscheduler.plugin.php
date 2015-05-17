@@ -1,11 +1,16 @@
 <?php if (!defined('APPLICATION')) exit();
 
+/**
+@package PostScheduler for Vanilla Forums
+@author Aelia <admin@aelia.co>
+@license GPLv3 http://www.gnu.org/copyleft/gpl.html
+*/
 
 // Define the plugin
 $PluginInfo['PostScheduler'] = array(
 	'Name' => 'Post Scheduler',
 	'Description' => 'Allows to schedule a Discussion to become visible at from a specific date and time.',
-	'Version' => '13.04.15',
+	'Version' => '13.04.15b',
 	'RequiredApplications' => array('Vanilla' => '2.0.10'),
 	'RequiredTheme' => FALSE,
   'RequiredPlugins' => array('Logger' => '13.02.01',

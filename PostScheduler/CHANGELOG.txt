@@ -56,3 +56,6 @@ PostScheduler for Vanilla Forums 2.0/2.1 - Change Log
 
 13.04.15
 - Improved handling of edge conditions with Discussions created before the plugin was enabled
+
+13.04.15b
+- Replaced licence with GPLv3
