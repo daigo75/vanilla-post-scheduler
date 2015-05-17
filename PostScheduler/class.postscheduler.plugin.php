@@ -20,12 +20,13 @@ $PluginInfo['PostScheduler'] = array(
 	'SettingsUrl' => '/plugin/postscheduler',
 	'SettingsPermission' => 'Garden.Settings.Manage',
 	'Author' => 'Diego Zanella',
-	'AuthorEmail' => 'diego@pathtoenlightenment.net',
-	'AuthorUrl' => 'http://dev.pathtoenlightenment.net',
-	'RegisterPermissions' => array('Plugins.PostScheduler.Manage',
-																 'Plugins.PostScheduler.ScheduleDiscussions',
-																 'Plugins.PostScheduler.ViewAllScheduled'
-																 ),
+	'AuthorEmail' => 'admin@aelia.co',
+	'AuthorUrl' => 'http://aelia.co',
+	'RegisterPermissions' => array(
+		'Plugins.PostScheduler.Manage',
+		'Plugins.PostScheduler.ScheduleDiscussions',
+		'Plugins.PostScheduler.ViewAllScheduled'
+	),
 );
 
 // Load validation functions
