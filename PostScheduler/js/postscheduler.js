@@ -1,6 +1,4 @@
-/**
-{licence}
-*/
+
 
 /**
  * Event handler. Invoked every time a User selects a date in the DateTimePicker.

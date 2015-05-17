@@ -1,7 +1,5 @@
 <?php if (!defined('APPLICATION')) exit();
-/**
-{licence}
-*/
+
 
 // Define the plugin
 $PluginInfo['PostScheduler'] = array(

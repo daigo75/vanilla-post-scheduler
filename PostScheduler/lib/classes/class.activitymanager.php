@@ -1,8 +1,6 @@
 <?php if (!defined('APPLICATION')) exit();
 
-/**
-{licence}
-*/
+
 
 /**
  * Base class containing handles and methods to alter the standard workflow of
